@@ -68,6 +68,8 @@ class Chassis {
          */
         Pose getPose() const { return *pose; }
 
+        double getWorldFrameHeading();
+
         /**
          * @brief Set the robot's current pose (position and orientation).
          * @param newPose The new pose to set.
@@ -85,6 +87,7 @@ class Chassis {
             pose->setY(y);
             pose->setTheta(theta);
         }
+        
         /**
          * @brief Move the robot to a specific position using PID control.
          * @param targetPose The target pose to move to.

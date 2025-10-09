@@ -42,8 +42,54 @@ void Chassis::stop() {
     }
 }
 
+double Chassis::getWorldFrameHeading() {
+    if (odometry && odometry->imu) {
+        return -1 * Pose::degToRad(odometry->imu->get_yaw()) + M_PI_2;
+    } else {
+        return 0;
+    }
+}
+
+
+/**
+ * @brief Move the robot to a specific position using PID control.
+ * @param targetPose The target pose to move to.
+ */
+void Chassis::moveTo(Pose targetPose) {
+    double linearError;
+    double angularError;
+    double absTargetAngle;
+    double leftOutput;
+    double rightOutput;
+    Pose robotPose = this->getPose();
+
+    while (robotPose.distanceTo(targetPose) > 1) {
+
+        linearError = robotPose.distanceTo(targetPose);
+
+        absTargetAngle = robotPose.angleTo(targetPose);
+		absTargetAngle = absTargetAngle < 0 ? absTargetAngle + M_TWOPI : absTargetAngle;
+		
+		angularError = absTargetAngle - this->getWorldFrameHeading();
+		if (angularError > M_PI or angularError < (-1 * M_PI)) {
+			angularError = -1 * std::copysign(1, angularError) * (M_TWOPI - abs(angularError));
+		}
+		
+        leftOutput = linearError * 2.5 - angularError * 20;
+        rightOutput = linearError * 2.5 + angularError * 20;
+
+        
+        this->tank(leftOutput, rightOutput);
+
+        robotPose = this->getPose();
+
+		pros::delay(20);
+    }
+}
+
 //https://thepilons.ca/wp-content/uploads/2018/10/Tracking.pdf
 //TODO: Make tracking work with different odometry setups
+#warning TODO: Figure out why x and y signs arent correct (get rid of the * -1)
 void Chassis::trackPosition() {
     // Get current position
     std::array<double, 4> currentPose = odometry->getReadings();
@@ -89,5 +135,5 @@ void Chassis::trackPosition() {
     deltaD = deltaD.rotate(-1*thetaM);
 
     // Update the position
-    setPose(formerPosition.getX() + deltaD.getX(), formerPosition.getY() + deltaD.getY(), odometry->getRotation());
+    setPose(formerPosition.getX() + deltaD.getX(), formerPosition.getY() - deltaD.getY(), odometry->getRotation());
 }

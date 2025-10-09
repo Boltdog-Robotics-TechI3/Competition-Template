@@ -1,6 +1,6 @@
 #include <vector>
 #include <cmath>
-#include "pose.hpp"
+#include "trajectorygenerator.hpp"
 
 /**
  * @brief Generates a linearly spaced vector of doubles from start to end with num elements.
@@ -12,7 +12,7 @@
  * @param num The number of elements in the sequence.
  * @return A vector of doubles containing the linearly spaced values.
  */
-std::vector<double> linspace(float start, float end, int num) {
+std::vector<double> TrajectoryGenerator::linspace(float start, float end, int num) {
     std::vector<double> result;
 
     if (num == 0) {
@@ -40,7 +40,7 @@ std::vector<double> linspace(float start, float end, int num) {
  * 
  * The spline is defined by the following equation:
  * 
- *  P(t)=h00​(t) * P0​ + h10​(t) * M0 ​+ h01​(t) * P1 ​+ h11​(t) * M1​
+ *  P(t) = h00​(t) * P0​ + h10​(t) * M0 ​+ h01​(t) * P1 ​+ h11​(t) * M1​
  * 
  * where:
  * 
@@ -64,16 +64,19 @@ std::vector<double> linspace(float start, float end, int num) {
  * 
  * @return A vector of poses representing the Hermite spline. Note that the heading of each pose is undefined.
  */
-std::vector<Pose> generateHermiteSpline(Pose startPose, Pose endPose, int numPoints = 100) {
-    std::vector<double> tVals = linspace(0, 1, numPoints);
+std::vector<Pose> TrajectoryGenerator::generateHermiteSpline(Pose startPose, Pose endPose, int numPoints) {
+    std::vector<double> tVals = TrajectoryGenerator::linspace(0, 1, numPoints);
 
     std::vector<Pose> result;
 
-    double M0[2] = {2 * (std::cos(startPose.getTheta() / 180 * M_PI)),
-                    2 * (std::sin(startPose.getTheta() / 180 * M_PI))};
+    // Scale factor for the tangents. Adjust this value to change the "tightness" of the curve.
+    double tangentScale = startPose.distanceTo(endPose) / 1.75; 
 
-    double M1[2] = {2 * (std::cos(endPose.getTheta() / 180 * M_PI)),
-                    2 * (std::sin(endPose.getTheta() / 180 * M_PI))};
+    double M0[2] = {tangentScale* (std::cos((-1 * startPose.getTheta()) + M_PI_2)),
+                    tangentScale * (std::sin((-1 * startPose.getTheta()) + M_PI_2))};
+
+    double M1[2] = {tangentScale * (std::cos((-1 * endPose.getTheta()) + M_PI_2)),
+                    tangentScale * (std::sin((-1 * endPose.getTheta()) + M_PI_2))};
 
     for (double t : tVals) {
         double h00 =  2*pow(t,3) - 3*pow(t,2) + 1;
@@ -98,15 +101,17 @@ std::vector<Pose> generateHermiteSpline(Pose startPose, Pose endPose, int numPoi
  * @param waypoints An array of Pose objects representing the waypoints. The array should contain at least two waypoints.
  * @return A vector of Pose objects representing the generated trajectory.
  */
-std::vector<Pose> generateTrajectory(Pose waypoints[]) {
-    std::vector<Pose> result = generateHermiteSpline(waypoints[0], waypoints[1]);
+Trajectory TrajectoryGenerator::generateTrajectory(std::vector<Pose> waypoints) {
+    std::vector<Pose> result = TrajectoryGenerator::generateHermiteSpline(waypoints[0], waypoints[1], 20);
     std::vector<Pose> temp;
     
-    for (int i = 1; i < 4 - 1; i++) {
-        temp = generateHermiteSpline(waypoints[i], waypoints[i + 1]);
+    for (int i = 1; i < waypoints.size() - 1; i++) {
+        temp = TrajectoryGenerator::generateHermiteSpline(waypoints[i], waypoints[i + 1], 20);
         
         result.insert(result.end(), temp.begin(), temp.end());
     }    
     
-    return result;
+    Trajectory trajectory(waypoints, result);
+
+    return trajectory;
 }
