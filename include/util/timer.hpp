@@ -1,0 +1,33 @@
+#pragma once
+#include "api.h"
+#include "pros/rtos.hpp"
+
+typedef void (*callback_function)();
+
+class Timer {
+    private:
+        callback_function callback;
+        int time = 0; // in milliseconds
+        bool initialized = false;
+        bool running = false;
+        pros::Task task = pros::Task([this]() {
+            while (true) {
+                // Check if the task restarts upon resuming
+                // Ensure the correct task is being suspended/resumed
+                // Maybe use pros::Task::current() instead of this->task
+                pros::lcd::print(2, "Timer Running %d", pros::millis());
+                task.suspend();
+                pros::lcd::print(0, "Timer Resumed %d", pros::millis());
+                pros::delay(this->time);
+                if (running && callback) {
+                    running = false;
+                    callback();
+                }
+            }
+        });
+    public:
+        Timer(int time, callback_function cb);
+        void start();
+        void stop();
+        bool isRunning() { return running; }
+};

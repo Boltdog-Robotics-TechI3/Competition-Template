@@ -15,3 +15,9 @@ temp.log
 temp.errors
 *.ini
 .d/
+
+Doxyfile
+
+.DS_Store
+
+docs

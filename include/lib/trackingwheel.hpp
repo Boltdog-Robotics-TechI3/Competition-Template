@@ -19,6 +19,13 @@ class TrackingWheel {
         friend class Chassis;
         
     public:
+        /**
+         * @brief Construct a new Tracking Wheel object.
+         * @param port The port number the tracking wheel's encoder is connected to.
+         * @param wheelDiameter The diameter of the tracking wheel in inches.
+         * @param offset The offset of the tracking wheel from the robot's center of rotation in inches. Positive values are forward/right, negative values are backward/left.
+         * @param orientation The orientation of the tracking wheel (LEFT, RIGHT, or BACK).
+         */
         TrackingWheel(int port, double wheelDiameter, double offset, WheelPosition orientation)
         : encoder(new pros::Rotation(port)), wheelDiameter(wheelDiameter), offset(offset), orientation(orientation) {}
 

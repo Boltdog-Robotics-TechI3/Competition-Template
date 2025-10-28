@@ -11,7 +11,8 @@ class Chassis {
         Odometry *odometry;
 
         Pose *pose;
-        PID *pidController;
+        PIDController *lateralPID;
+        PIDController *turnPID;
 
         bool tracking = false;
 
@@ -35,7 +36,17 @@ class Chassis {
         }
 
     public:
+        /**
+         * @brief Construct a new Chassis object.
+         * @param drivetrain Pointer to the drivetrain object controlling the motors.
+         * @param odometry Pointer to the odometry object for tracking position. If nullptr, odometry is disabled.
+         */
         Chassis(Drivetrain *drivetrain, Odometry *odometry);
+
+        /**
+         * @brief Construct a new Chassis object without odometry.
+         * @param drivetrain Pointer to the drivetrain object controlling the motors.
+         */
         Chassis(Drivetrain *drivetrain) : drivetrain(drivetrain), odometry(nullptr) {}
 
         /**
@@ -85,12 +96,19 @@ class Chassis {
             pose->setY(y);
             pose->setTheta(theta);
         }
+
+        void moveDistance(double distance);
+        void turnAngle(double angle);
         /**
          * @brief Move the robot to a specific position using PID control.
          * @param targetPose The target pose to move to.
          */
         void moveTo(Pose targetPose);
 
+        /**
+         * @brief Set the brake mode for the drivetrain motors.
+         * @param mode The brake mode to set (e.g., pros::E_MOTOR_BRAKE_COAST, pros::E_MOTOR_BRAKE_BRAKE, pros::E_MOTOR_BRAKE_HOLD).
+         */
         void setBrakeMode(pros::motor_brake_mode_e_t mode) {
             if (drivetrain) {
                 drivetrain->leftMotors->set_brake_mode(mode);

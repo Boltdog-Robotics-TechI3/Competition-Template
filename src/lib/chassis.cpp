@@ -91,3 +91,27 @@ void Chassis::trackPosition() {
     // Update the position
     setPose(formerPosition.getX() + deltaD.getX(), formerPosition.getY() + deltaD.getY(), odometry->getRotation());
 }
+
+void Chassis::moveDistance(double distance) {
+    if (!lateralPID || !turnPID) {
+        return;
+    }
+    lateralPID->reset();
+    lateralPID->setP(0.1);
+
+    bool targetReached = false;
+    double initialPosition = odometry ? odometry->getReadings()[0] : (drivetrain->leftMotors->get_position() + drivetrain->rightMotors->get_position()) / 2.0;
+    int startTime = pros::millis();
+
+    // while (!targetReached) {
+    //     if ()
+    //     double currentPosition = odometry ? odometry->getReadings()[0] : (drivetrain->leftMotors->get_position() + drivetrain->rightMotors->get_position()) / 2.0;
+    //     double output = lateralPID->calculate(currentPosition, distance);
+    //     drivetrain->leftMotors->move(output);
+    //     drivetrain->rightMotors->move(output);
+    //     pros::delay(20);
+    // }
+
+    drivetrain->leftMotors->move_velocity(0);
+    drivetrain->rightMotors->move_velocity(0);
+}
