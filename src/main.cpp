@@ -3,22 +3,22 @@
 
 pros::Controller driver(pros::E_CONTROLLER_MASTER);
 
-pros::MotorGroup leftMotors({-7, -8, 9, 10});
-pros::MotorGroup rightMotors({-1, -2, 3, 4});
+pros::MotorGroup leftMotors({-10, -9, 8});
+pros::MotorGroup rightMotors({1, 2, -3});
 double wheelDiameter = 3.25;
-double trackWidth = 10.875;
-double gearRatio = 1.0; // 1:1
+double trackWidth = 10.9375;
+double gearRatio = 36.0/48.0;// 1:1
 
-pros::IMU gyro(11); // IMU on port 20
+pros::IMU gyro(7); 
 
-TrackingWheel backWheel(19, 2.125, 0, WheelPosition::BACK); // Back wheel on port 19
-TrackingWheel leftWheel(18, 2.125, 0, WheelPosition::LEFT); // Left wheel on ports 18
+TrackingWheel backWheel(5, 2, 0, WheelPosition::BACK); 
+TrackingWheel leftWheel(4, 2, 0, WheelPosition::LEFT); 
 
 Drivetrain drivetrain = Drivetrain(&leftMotors, &rightMotors, wheelDiameter, trackWidth, gearRatio);
 Odometry odometry = Odometry(&leftWheel, NULL, &backWheel, &gyro); // OdomSensors with left and back wheels
 
 Chassis chassis = Chassis(&drivetrain, &odometry);
-PurePursuitController purePursuitController(&chassis, 6);
+PurePursuitController purePursuitController(&chassis, 9);
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -65,17 +65,14 @@ void competition_initialize() {}
 void autonomous() {
 	Trajectory testTrajectory = TrajectoryGenerator::generateTrajectory({
 		Pose(0, 0, Pose::degToRad(0)),
-		// Pose(6, 18, Pose::degToRad(0)),
 		Pose(0, 24, Pose::degToRad(-45)),
 		Pose(-48, 36, Pose::degToRad(-45)),
-		// Pose(-52, 60, Pose::degToRad(0)),
-		Pose(-54, 100, Pose::degToRad(45)),
+		Pose(-54, 90, Pose::degToRad(45)),
 		Pose(6, 80, Pose::degToRad(135)),
 		Pose(12, 36, Pose::degToRad(180))
 
 	});
 
-	// chassis.moveTo(Pose(12, 24, 0));
 	purePursuitController.followPath(testTrajectory, &driver);
 }
 

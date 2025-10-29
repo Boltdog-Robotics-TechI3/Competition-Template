@@ -70,7 +70,7 @@ std::vector<Pose> TrajectoryGenerator::generateHermiteSpline(Pose startPose, Pos
     std::vector<Pose> result;
 
     // Scale factor for the tangents. Adjust this value to change the "tightness" of the curve.
-    double tangentScale = startPose.distanceTo(endPose) / 1.75; 
+    double tangentScale = startPose.distanceTo(endPose) / 2.5; 
 
     double M0[2] = {tangentScale* (std::cos((-1 * startPose.getTheta()) + M_PI_2)),
                     tangentScale * (std::sin((-1 * startPose.getTheta()) + M_PI_2))};
@@ -78,14 +78,16 @@ std::vector<Pose> TrajectoryGenerator::generateHermiteSpline(Pose startPose, Pos
     double M1[2] = {tangentScale * (std::cos((-1 * endPose.getTheta()) + M_PI_2)),
                     tangentScale * (std::sin((-1 * endPose.getTheta()) + M_PI_2))};
 
-    for (double t : tVals) {
-        double h00 =  2*pow(t,3) - 3*pow(t,2) + 1;
-        double h10 =  pow(t,3) - 2*pow(t,2) + t;
-        double h01 = -2*pow(t,3) + 3*pow(t,2);
-        double h11 =  pow(t,3) - pow(t,2);
+    double h00, h10, h01, h11, x, y;
 
-        double x = h00*startPose.getX() + h10*M0[0] + h01*endPose.getX() + h11*M1[0];
-        double y = h00*startPose.getY() + h10*M0[1] + h01*endPose.getY() + h11*M1[1];
+    for (double t : tVals) {
+        h00 =  2*pow(t,3) - 3*pow(t,2) + 1;
+        h10 =  pow(t,3) - 2*pow(t,2) + t;
+        h01 = -2*pow(t,3) + 3*pow(t,2);
+        h11 =  pow(t,3) - pow(t,2);
+
+        x = h00*startPose.getX() + h10*M0[0] + h01*endPose.getX() + h11*M1[0];
+        y = h00*startPose.getY() + h10*M0[1] + h01*endPose.getY() + h11*M1[1];
 
         result.push_back(Pose(x, y, 0));
     }

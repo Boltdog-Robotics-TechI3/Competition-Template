@@ -15,6 +15,8 @@ class PurePursuitController {
         PurePursuitController(Chassis *chassis, int lookAheadDistance = 12)
         : chassis(chassis), lookAheadDistance(lookAheadDistance) {}
 
+        void reset();
+
         /**
          * @brief Finds the intersection points between a line segment defined by two poses and a circle centered at the origin with radius r.
          * The function returns a vector of Pose objects representing the intersection points that lie within the bounds of the line segment.
@@ -48,7 +50,7 @@ class PurePursuitController {
          *
          * @return A Pose object representing the goal pose for the robot to pursue.
         */
-        Pose getGoalPose(std::vector<Pose> waypoints, Pose robotPose, pros::Controller *controller = nullptr);
+        Pose getGoalPose(std::vector<Pose> waypoints, Pose robotPose);
 
         void followPath(Trajectory trajectory, pros::Controller *controller = nullptr);
 

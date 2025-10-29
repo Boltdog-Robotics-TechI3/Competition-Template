@@ -3,6 +3,10 @@
 #include <algorithm>
 #include "purepursuit.hpp"
 
+void PurePursuitController::reset() {
+    this->currentWaypointIndex = 0;
+}
+
 /**
  * @brief Finds the intersection points between a line segment defined by two poses and a circle centered at the origin with radius r.
  * The function returns a vector of Pose objects representing the intersection points that lie within the bounds of the line segment.
@@ -57,7 +61,7 @@ std::vector<Pose> PurePursuitController::getBoundedLineCircleIntersection(Pose p
     return intersections;
 }
 
-Pose PurePursuitController::getGoalPose(std::vector<Pose> waypoints, Pose robotPose, pros::Controller *controller) {
+Pose PurePursuitController::getGoalPose(std::vector<Pose> waypoints, Pose robotPose) {
     Pose goalPose;
     goalPose.setPose(0, 0, 0); // Default to an invalid pose
     Pose temp;
@@ -75,8 +79,6 @@ Pose PurePursuitController::getGoalPose(std::vector<Pose> waypoints, Pose robotP
 
         // Check to see if the line between the current two waypoints intersects our look ahead circle.
         intersections = getBoundedLineCircleIntersection(offsetWaypoint1, offsetWaypoint2, lookAheadDistance);
-
-        // controller->print(0, 0, "I: %d S: %d", i, intersections.size());
 
         // If no intersections were found, move on to the next set of waypoints.
         // Also update the current waypoint index to optimize future searches.
@@ -130,7 +132,7 @@ void PurePursuitController::followPath(Trajectory trajectory, pros::Controller *
     double rightOutput;
 
     while (robotPose.distanceTo(waypoints[waypoints.size() - 1]) > 1) { // Continue until the robot is within 2 inches of the last waypoint
-        goalPose = this->getGoalPose(waypoints, robotPose, controller);
+        goalPose = this->getGoalPose(waypoints, robotPose);
 
         controller->print(0, 0, "X: %.3f Y: %.3f ", goalPose.getX(), goalPose.getY());
 
@@ -140,12 +142,12 @@ void PurePursuitController::followPath(Trajectory trajectory, pros::Controller *
 		absTargetAngle = absTargetAngle < 0 ? absTargetAngle + M_TWOPI : absTargetAngle;
 		
 		angularError = absTargetAngle - chassis->getWorldFrameHeading();
-		if (angularError > M_PI or angularError < (-1 * M_PI)) {
+		if (angularError > M_PI || angularError < (-1 * M_PI)) {
 			angularError = -1 * std::copysign(1, angularError) * (M_TWOPI - abs(angularError));
 		}
 		
-        leftOutput = std::clamp(linearError * 7, -50.0, 50.0) - angularError * 25;
-        rightOutput = std::clamp(linearError * 7, -50.0, 50.0) + angularError * 25;
+        leftOutput = std::clamp(linearError * 6, -40.0, 40.0) - angularError * 15;
+        rightOutput = std::clamp(linearError * 6, -40.0, 40.0) + angularError * 15;
 
         // leftOutput = std::clamp(leftOutput, -70.0, 70.0);
         // rightOutput = std::clamp(rightOutput, -70.0, 70.0);
