@@ -1,4 +1,5 @@
 #pragma once
+
 #include <array>
 #include "pros/imu.hpp"
 #include "trackingwheel.hpp"
@@ -34,7 +35,13 @@ class Odometry {
 
         /** 
          * @brief Get the current rotation from the IMU.
+         * @return The current rotation in radians. If no IMU is present, returns 0.
+         */
+        double getRotationRadians();
+
+        /** 
+         * @brief Get the current rotation from the IMU.
          * @return The current rotation in degrees. If no IMU is present, returns 0.
          */
-        double getRotation();
+        double getRotationDegrees();
 };

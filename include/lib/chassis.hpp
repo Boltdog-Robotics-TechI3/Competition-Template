@@ -6,7 +6,7 @@
 #include "pros/rtos.hpp"
 
 class Chassis {
-    private:
+    protected:
         Drivetrain *drivetrain;
         Odometry *odometry;
 
@@ -35,27 +35,15 @@ class Chassis {
         }
 
     public:
-        Chassis(Drivetrain *drivetrain, Odometry *odometry);
-        Chassis(Drivetrain *drivetrain) : drivetrain(drivetrain), odometry(nullptr) {}
-
+        Chassis(Drivetrain *drivetrain, Odometry *odometry)
+        : drivetrain(drivetrain), odometry(odometry), pose(new Pose()) {}
+        Chassis(Drivetrain *drivetrain) 
+        : drivetrain(drivetrain), odometry(nullptr) {}
+ 
         /**
          * @brief Resets the pose and all of the robot's sensors to their initial state.
          */
         void reset();
-
-        /**
-         * @brief Move the robot in arcade mode. The left joystick controls the forward/backward movement, and the right joystick controls the rotation.
-         * @param leftY The value of the left joystick (forward/backward movement).
-         * @param rightX The value of the right joystick (rotation).
-         */
-        void arcade(int leftY, int rightX);
-
-        /**
-         * @brief Move the robot in tank mode. The left joystick controls the left side motors, and the right joystick controls the right side motors.
-         * @param leftY The value of the left joystick (left side motors).
-         * @param rightY The value of the right joystick (right side motors).
-         */
-        void tank(int leftY, int rightY);
 
         /**
          * @brief Forcefully stop the robot's motors.
@@ -66,13 +54,13 @@ class Chassis {
          * @brief Get the robot's current pose (position and orientation).
          * @return The robot's current pose.
          */
-        Pose getPose() const { return *pose; }
+        Pose getPose() const;
 
         /**
          * @brief Set the robot's current pose (position and orientation).
          * @param newPose The new pose to set.
          */
-        void setPose(Pose newPose) { *pose = newPose; }
+        void setPose(Pose newPose);
 
         /**
          * @brief Set the robot's current pose (position and orientation) using individual values.
@@ -80,21 +68,21 @@ class Chassis {
          * @param y The new y-coordinate.
          * @param theta The new orientation (in radians).
          */
-        void setPose(double x, double y, double theta) {
-            pose->setX(x);
-            pose->setY(y);
-            pose->setTheta(theta);
-        }
+        void setPose(double x, double y, double theta);
+
+        /**
+         * @brief Sets the brake mode for the drivetrain.
+         * @param mode The brake mode to set.
+         */
+        void setBrakeMode(pros::motor_brake_mode_e_t mode);
+
         /**
          * @brief Move the robot to a specific position using PID control.
          * @param targetPose The target pose to move to.
          */
-        void moveTo(Pose targetPose);
+        // void virtual moveToPose(Pose targetPose);
 
-        void setBrakeMode(pros::motor_brake_mode_e_t mode) {
-            if (drivetrain) {
-                drivetrain->leftMotors->set_brake_mode(mode);
-                drivetrain->rightMotors->set_brake_mode(mode);
-            }
-        }
+        void virtual drive(int left, int right) = 0;
+
+        void virtual drive(int leftX, int leftY, int rightX) = 0;
 };

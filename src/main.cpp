@@ -1,6 +1,27 @@
 #include "main.h"
 
+double wheelDiameter = 3.25;
+double trackWidth = 12.125;
+double gearRatio = 1.0/1.0;
+
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
+
+pros::MotorGroup frontLeftMotors({-4, 5});
+pros::MotorGroup frontRightMotors({-9, 10});
+pros::MotorGroup backLeftMotors({-11, 12});
+pros::MotorGroup backRightMotors({-19, 20});
+
+pros::IMU gyro(2); 
+
+// TrackingWheel backWheel(5, 2, 0, WheelPosition::BACK); 
+// TrackingWheel leftWheel(4, 2, 0, WheelPosition::LEFT); 
+
+HolonomicDrivetrain drivetrain = HolonomicDrivetrain(&frontLeftMotors, &frontRightMotors, 
+													 &backLeftMotors, &backRightMotors, 
+													 wheelDiameter, trackWidth, gearRatio);
+Odometry odometry = Odometry(&gyro);
+
+HolonomicChassis chassis = HolonomicChassis(&drivetrain, &odometry);
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -9,7 +30,9 @@ pros::Controller controller(pros::E_CONTROLLER_MASTER);
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	pros::lcd::initialize();
+	while (gyro.is_calibrating());
+
+	chassis.reset();
 }
 
 /**
@@ -56,4 +79,14 @@ void autonomous() {}
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
-void opcontrol() {}
+void opcontrol() {
+	while (!false) {
+		chassis.drive(controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X),
+					  controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y),
+					  controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X));
+
+		// controller.set_text(0, 0, chassis.getPose().to_string());
+
+		pros::delay(20);
+	}
+}

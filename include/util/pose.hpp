@@ -1,11 +1,11 @@
 #pragma once
 #include <string>
 
-class Pose{
-    private:
+class Pose {
+    private: // personal information (PPI)
         double x; // in inches
         double y; // in inches
-        double theta; // in radians
+        double theta; // in radians 
 
     public:
         Pose(double x, double y, double theta) : x(x), y(y), theta(theta) {}
