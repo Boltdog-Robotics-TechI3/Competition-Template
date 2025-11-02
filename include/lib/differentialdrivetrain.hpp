@@ -8,6 +8,7 @@ class DifferentialDrivetrain : public Drivetrain {
         pros::MotorGroup *leftMotors;
         pros::MotorGroup *rightMotors;
         friend class Chassis;
+        
     public:
         DifferentialDrivetrain(pros::MotorGroup *leftMotors, pros::MotorGroup *rightMotors, double wheelDiameter, double wheelTrackWidth, double gearRatio)
         : Drivetrain(wheelDiameter, wheelTrackWidth, gearRatio), leftMotors(leftMotors), rightMotors(rightMotors) {}
@@ -40,6 +41,16 @@ class DifferentialDrivetrain : public Drivetrain {
          * Returns a list of the motors' current draws.
          */
         std::vector<std::vector<int32_t>> getCurrentDraws() override;
+
+        /**
+        * Returns a list of the motors' voltages.
+        */
+        std::vector<std::vector<int32_t>> getVoltages() override;
+
+        /**
+         * Returns a list of the motors' velocities.
+         */
+        std::vector<std::vector<double>> getVelocities() override;
 
         /** 
          * Returns a list of the motor groups on this drivetrain.         * 

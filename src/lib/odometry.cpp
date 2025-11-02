@@ -12,6 +12,7 @@ void Odometry::reset() {
         backWheel->reset();
     }
     if (imu) {
+        imu->reset(true);
         imu->tare();
     }
 }

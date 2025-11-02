@@ -91,6 +91,55 @@ std::vector<std::vector<int32_t>> HolonomicDrivetrain::getCurrentDraws() {
     return currentDraws;
 }
 
+/**
+ * Returns a list of the motors' voltages.
+ * The first element is a list of the front left module's voltages.
+ * The second element is a list of the front right module's voltages.
+ * The third element is a list of the back left module's voltages.
+ * The fourth element is a list of the back right module's voltages.
+ * 
+ * If side motors exist, the fifth element is a list of the side motors' voltages.
+ * 
+ * @return A 2D vector containing the voltages of the motors
+ */
+std::vector<std::vector<int32_t>> HolonomicDrivetrain::getVoltages() {
+    std::vector<std::vector<int32_t>> voltages;
+    voltages.push_back(frontLeftModule->get_voltage_all());
+    voltages.push_back(frontRightModule->get_voltage_all());
+    voltages.push_back(backLeftModule->get_voltage_all());
+    voltages.push_back(backRightModule->get_voltage_all());
+
+    if (sideMotors != nullptr) {
+        voltages.push_back(sideMotors->get_voltage_all());
+    }
+
+    return voltages;
+}
+
+/**
+ * Returns a list of the motors' velocities.
+ * The first element is a list of the front left module's velocities.
+ * The second element is a list of the front right module's velocities.
+ * The third element is a list of the back left module's velocities.
+ * The fourth element is a list of the back right module's velocities.
+ * 
+ * If side motors exist, the fifth element is a list of the side motors' velocities.
+ * 
+ * @return A 2D vector containing the velocities of the motors
+ */
+std::vector<std::vector<double>> HolonomicDrivetrain::getVelocities() {
+    std::vector<std::vector<double>> velocities;
+    velocities.push_back(frontLeftModule->get_actual_velocity_all());
+    velocities.push_back(frontRightModule->get_actual_velocity_all());
+    velocities.push_back(backLeftModule->get_actual_velocity_all());
+    velocities.push_back(backRightModule->get_actual_velocity_all());
+
+    if (sideMotors != nullptr) {
+        velocities.push_back(sideMotors->get_actual_velocity_all());
+    }
+
+    return velocities;
+}
 
 /** 
  * Returns a list of the motor groups on this drivetrain.

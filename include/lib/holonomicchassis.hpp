@@ -9,48 +9,47 @@
 
 class HolonomicChassis : public Chassis {
     public:
-        enum DriveMode {
-            FIELD_CENTRIC,
-            ROBOT_CENTRIC
-        };
-
-        DriveMode driveMode = FIELD_CENTRIC;
-
         HolonomicChassis(HolonomicDrivetrain *drivetrain, Odometry *odometry) 
         : Chassis(drivetrain, odometry) {}
 
         HolonomicChassis(HolonomicDrivetrain *drivetrain) 
         : Chassis(drivetrain, nullptr) {}
 
-        /** 
-         * @brief Sets the drive mode for the Holonomic chassis.
-         * @param mode The drive mode to set.
-         */
-        void setDriveMode(DriveMode mode) {
-            driveMode = mode;
-        }
-
         /**
-         * @brief Gets the current drive mode of the Holonomic chassis.
-         * @return The current drive mode.
-         */
-        DriveMode getDriveMode() const {
-            return driveMode;
-        }
-
+        * @brief Drive the robot at a specific angle with translational and rotational speeds.
+        * @param angle The angle to drive in radians.
+        * @param transSpeed The translational speed.
+        * @param rotSpeed The rotational speed.
+        */
         void driveAngle(double angle, int transSpeed, int rotSpeed);
 
+        /**
+         * @brief Move the robot in field-centric mode using joystick inputs.
+         * @param leftX The x-value of the left joystick.
+         * @param leftY The y-value of the left joystick.
+         * @param rightX The x-value of the right joystick.
+         */
         void fieldCentricDrive(int leftX, int leftY, int rightX);
 
+        /**
+         * @brief Move the robot in robot-centric mode using joystick inputs.
+         * @param leftX The x-value of the left joystick.
+         * @param leftY The y-value of the left joystick.
+         * @param rightX The x-value of the right joystick.
+         */
         void robotCentricDrive(int leftX, int leftY, int rightX);
 
-        void drive(int left, int right) override;
-
-        void drive(int leftX, int leftY, int rightX) override;
-        
         /**
          * @brief Move the robot to a specific position using PID control.
          * @param targetPose The target pose to move to.
          */
-        // void moveToPose(Pose targetPose) override;
+        void moveToPose(Pose targetPose) override;
+
+        /**
+         * @brief Turn the robot to a specific angle using PID control.
+         * 0 Degrees is facing "forward" from the starting orientation.
+         * 
+         * @param targetAngle The target angle to turn to (in degrees).
+         */
+        void turnAngle(double targetAngle) override;
 };

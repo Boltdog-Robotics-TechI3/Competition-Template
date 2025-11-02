@@ -11,6 +11,7 @@ class Drivetrain {
         double gearRatio;
 
     public:
+
         Drivetrain(double wheelDiameter, double wheelTrackWidth, double gearRatio)
         : wheelDiameter(wheelDiameter), wheelTrackWidth(wheelTrackWidth), gearRatio(gearRatio) {}
 
@@ -61,7 +62,6 @@ class Drivetrain {
         */
         void virtual setCurrentLimit(int32_t limit) = 0;
 
-
         /**
          * Returns the brake mode of the drivetrain.
          */
@@ -76,6 +76,16 @@ class Drivetrain {
          * Returns a list of the motors' current draws.
          */
         std::vector<std::vector<int32_t>> virtual getCurrentDraws() = 0;
+
+        /**
+         * Returns a list of the motors' voltages.
+         */
+        std::vector<std::vector<int32_t>> virtual getVoltages() = 0;
+
+        /**
+         * Returns a list of the motors' velocities.
+         */
+        std::vector<std::vector<double>> virtual getVelocities() = 0;
 
         /** 
          * Returns a list of the motor groups on this drivetrain.

@@ -12,6 +12,8 @@ class HolonomicDrivetrain : public Drivetrain {
 
         pros::MotorGroup *sideMotors;
 
+        friend class Chassis;
+
     public:
         HolonomicDrivetrain(pros::MotorGroup *leftFrontModule, pros::MotorGroup *rightFrontModule,
                            pros::MotorGroup *leftBackModule, pros::MotorGroup *rightBackModule,
@@ -61,6 +63,16 @@ class HolonomicDrivetrain : public Drivetrain {
          * Returns a list of the motors' current draws.
          */
         std::vector<std::vector<int32_t>> getCurrentDraws() override;
+
+        /**
+        * Returns a list of the motors' voltages.
+        */
+        std::vector<std::vector<int32_t>> getVoltages() override;
+
+        /**
+         * Returns a list of the motors' velocities.
+         */
+        std::vector<std::vector<double>> getVelocities() override;
 
         /** 
          * Returns a list of the motor groups on this drivetrain.         * 

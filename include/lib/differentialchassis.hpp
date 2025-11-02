@@ -8,8 +8,14 @@
 #include "pros/rtos.hpp"
 
 class DifferentialChassis : public Chassis {
-    protected:
-        /**
+    public:
+        DifferentialChassis(DifferentialDrivetrain *drivetrain, Odometry *odometry) 
+        : Chassis(drivetrain, odometry) {}
+
+        DifferentialChassis(DifferentialDrivetrain *drivetrain) 
+        : Chassis(drivetrain, nullptr) {}
+
+         /**
          * @brief Move the robot in arcade mode. The left joystick controls the forward/backward movement, and the right joystick controls the rotation.
          * @param leftY The value of the left joystick (forward/backward movement).
          * @param rightX The value of the right joystick (rotation).
@@ -23,43 +29,17 @@ class DifferentialChassis : public Chassis {
          */
         void tank(int leftY, int rightY);
 
-    public:
-        enum DriveMode {
-            ARCADE,
-            TANK
-        };
-
-        DriveMode driveMode = ARCADE;
-
-        DifferentialChassis(DifferentialDrivetrain *drivetrain, Odometry *odometry) 
-        : Chassis(drivetrain, odometry) {}
-
-        DifferentialChassis(DifferentialDrivetrain *drivetrain) 
-        : Chassis(drivetrain, nullptr) {}
-
-        /** 
-         * @brief Sets the drive mode for the differential chassis.
-         * @param mode The drive mode to set.
-         */
-        void setDriveMode(DriveMode mode) {
-            driveMode = mode;
-        }
-
-        /**
-         * @brief Gets the current drive mode of the differential chassis.
-         * @return The current drive mode.
-         */
-        DriveMode getDriveMode() const {
-            return driveMode;
-        }
-
-        void drive(int left, int right) override;
-
-        void drive(int leftX, int leftY, int rightX) override;
-        
         /**
          * @brief Move the robot to a specific position using PID control.
          * @param targetPose The target pose to move to.
          */
-        // void moveToPose(Pose targetPose) override;
+        void moveToPose(Pose targetPose) override;
+
+        /**
+         * @brief Turn the robot to a specific angle using PID control.
+         * 0 Degrees is facing "forward" from the starting orientation.
+         * 
+         * @param targetAngle The target angle to turn to (in degrees).
+         */
+        void turnAngle(double targetAngle) override;
 };
