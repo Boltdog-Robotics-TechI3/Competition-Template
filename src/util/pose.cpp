@@ -1,5 +1,5 @@
 #include <cmath>
-#include "util/pose.hpp" //longer methods defined here
+#include "util/pose.hpp"
 
 void Pose::setPose(Pose newPose) {
     x = newPose.getX();
