@@ -34,6 +34,9 @@ double Chassis::scaleInput(int input) {
             break;
         case XTAN:
             scaledInput = normalizedInput * tan(normalizedInput);
+            break;
+        default:
+            scaledInput = normalizedInput;
     }
 
     if (isNegative && scaledInput > 0) {
