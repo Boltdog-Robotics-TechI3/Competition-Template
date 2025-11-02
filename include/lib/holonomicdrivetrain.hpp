@@ -75,7 +75,7 @@ class HolonomicDrivetrain : public Drivetrain {
         std::vector<std::vector<double>> getVelocities() override;
 
         /** 
-         * Returns a list of the motor groups on this drivetrain.         * 
+         * Returns a list of the motor groups on this drivetrain.
         */
         std::vector<pros::MotorGroup*> getMotors() override;
 
