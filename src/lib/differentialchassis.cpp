@@ -27,11 +27,55 @@ void DifferentialChassis::tank(int leftY, int rightY) {
 }
 
 /**
+ * @brief Move the robot towards a specific position using a single step of PID control.
+ * 
+ * @note This method is intended to be called repeatedly in a loop until the target position is reached.
+ * Use moveToPose() for a blocking call that handles the loop internally and if the target pose won't change during the loop.
+ * Use this method if your target position may change dynamically.
+ * 
+ * @note This method ignores the angle of the target pose and only drives to the x and y coordinates.
+ * 
+ * @param targetPose The target pose to move to.
+ */
+void DifferentialChassis::moveToPoseStep(Pose targetPose) {
+    double linearError;
+    double angularError;
+    double absTargetAngle;
+    double lateralOutput;
+    double turnOutput;
+    double leftOutput;
+    double rightOutput;
+    
+
+    linearError = pose->distanceTo(targetPose);
+
+    absTargetAngle = pose->angleTo(targetPose);
+    absTargetAngle = absTargetAngle < 0 ? absTargetAngle + M_TWOPI : absTargetAngle;
+    
+    angularError = absTargetAngle - getWorldFrameHeading();
+    if (angularError > M_PI or angularError < (-1 * M_PI)) {
+        angularError = -1 * std::copysign(1, angularError) * (M_TWOPI - abs(angularError));
+    }
+
+    lateralOutput = lateralPID->calculate(linearError, 0);
+    turnOutput = turnPID->calculate(angularError, 0);
+        
+    leftOutput = lateralOutput - turnOutput;
+    rightOutput = lateralOutput + turnOutput;
+
+    tank(leftOutput, rightOutput);
+}
+
+/**
  * @brief Move the robot to a specific position using PID control.
  * @param targetPose The target pose to move to.
  */
 void DifferentialChassis::moveToPose(Pose targetPose) {
-    // TODO: Implement MoveTo for DifferentialChassis
+    while (pose->distanceTo(targetPose) > 1) {
+        moveToPoseStep(targetPose);
+
+		pros::delay(20);
+    }
 }
 
 /**

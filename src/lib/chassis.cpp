@@ -95,6 +95,14 @@ void Chassis::stop() {
     }
 }
 
+double Chassis::getWorldFrameHeading() {
+    if (odometry && odometry->imu) {
+        return -1 * odometry->getRotationRadians() + M_PI_2;
+    } else {
+        return 0;
+    }
+}
+
 /**
  * @brief Get the robot's current pose (position and orientation).
  * @return The robot's current pose.
@@ -180,5 +188,5 @@ void Chassis::trackPosition() {
     deltaD = deltaD.rotate(-1*thetaM);
 
     // Update the position
-    setPose(formerPosition.getX() + deltaD.getX(), formerPosition.getY() + deltaD.getY(), odometry->getRotationRadians());
+    setPose(formerPosition.getX() + deltaD.getX(), formerPosition.getY() - deltaD.getY(), odometry->getRotationRadians());
 }

@@ -54,6 +54,31 @@ void HolonomicChassis::robotCentricDrive(int leftX, int leftY, int rightX) {
 }
 
 /**
+ * @brief Move the robot in field-centric mode using joystick inputs with direct heading control.
+ * The left joystick controls translation, and the right joystick controls the angle the robot is facing.
+ * @param leftX The x-value of the left joystick.
+ * @param leftY The y-value of the left joystick.
+ *  @param rightX The x-value of the right joystick.
+ * @param rightY The y-value of the right joystick.
+ */
+void HolonomicChassis::fieldCentricHeadingDrive(int leftX, int leftY, int rightX, int rightY) {
+    double y = (double)leftY;
+    double x = (double)leftX;
+
+    double targetDriveAngle = atan2(y, x);
+    double speed = scaleInput(sqrt(x*x + y*y));
+
+    // Find the target heading angle based on the right joystick and convert it to the robot-centric frame
+    double targetHeadingAngle = -(atan2((double)rightX, (double)rightY) - M_PI_2);
+	targetHeadingAngle = targetHeadingAngle > M_PI ? targetHeadingAngle - M_TWOPI : targetHeadingAngle;
+
+    double r = turnPID->calculate(pose->getTheta(), targetHeadingAngle);
+
+	driveAngle(targetDriveAngle + odometry->getRotationRadians(), speed, r);
+}
+
+
+/**
  * @brief Move the robot to a specific position using PID control.
  * @param targetPose The target pose to move to.
  */
