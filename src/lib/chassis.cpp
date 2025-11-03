@@ -79,7 +79,7 @@ void Chassis::reset() {
         odometry->reset();
     }
     if (drivetrain) {
-        drivetrain->setMotorSpeeds({0, 0});
+        drivetrain->setMotorSpeeds({0, 0, 0, 0, 0});
     }
     if (!tracking) {
         startTracking();
@@ -91,7 +91,7 @@ void Chassis::reset() {
  */
 void Chassis::stop() {
     if (drivetrain) {
-        drivetrain->setMotorSpeeds({0, 0});
+        drivetrain->setMotorSpeeds({0, 0, 0, 0, 0});
     }
 }
 
