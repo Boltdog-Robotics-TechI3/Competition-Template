@@ -1,48 +1,4 @@
 #include "main.h"
-#include <vector>
-
-
-pros::Controller controller(pros::E_CONTROLLER_MASTER);
-
-
-// double wheelDiameter = 3.25;
-// double trackWidth = 12.125;
-// double gearRatio = 1.0/1.0;
-
-// pros::MotorGroup frontLeftMotors({-4, 5});
-// pros::MotorGroup frontRightMotors({-9, 10});
-// pros::MotorGroup backLeftMotors({-11, 12});
-// pros::MotorGroup backRightMotors({-19, 20});
-
-// pros::IMU imu(7);
-
-// HolonomicDrivetrain drivetrain = HolonomicDrivetrain(&frontLeftMotors, &frontRightMotors, 
-// 													 &backLeftMotors, &backRightMotors, 
-// 													 wheelDiameter, trackWidth, gearRatio);
-
-// Odometry odometry = Odometry(&imu);
-
-// HolonomicChassis chassis = HolonomicChassis(&drivetrain, &odometry);
-
-double wheelDiameter = 3.25;
-double trackWidth = 10.75;
-double gearRatio = 3.0/4.0;
-
-pros::MotorGroup rightMotors({1, 2, -3});
-pros::MotorGroup leftMotors({-10, -9, 8});
-pros::Motor intake(6);
-
-pros::IMU imu(7);
-TrackingWheel horizontalTrackingWheel(5, 2.08, 0, WheelPosition::BACK);
-TrackingWheel verticalTrackingWheel(-4, 2.08, 0.25, WheelPosition::LEFT);
-
-Odometry odometry(&verticalTrackingWheel, NULL, &horizontalTrackingWheel, &imu);
-
-DifferentialDrivetrain drivetrain = DifferentialDrivetrain(&leftMotors, &rightMotors, 
-														   wheelDiameter, trackWidth, gearRatio);
-
-DifferentialChassis chassis = DifferentialChassis(&drivetrain, &odometry);
-
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -50,10 +6,7 @@ DifferentialChassis chassis = DifferentialChassis(&drivetrain, &odometry);
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
-void initialize() {
-	chassis.reset();
-	chassis.setInputScale(Chassis::SINSQUARED);
-}
+void initialize() {}
 
 /**
  * Runs while the robot is in the disabled state of Field Management System or
@@ -100,26 +53,7 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	std::vector<std::vector<int32_t>> vals;
-
-	while (1) {
-		if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)) {
-			imu.tare();
-		}
-
-		chassis.arcade(controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y),
-					   controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X));
-
-		
-
-		// chassis.fieldCentricDrive(controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X),
-		// 							controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y),
-		// 							controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X));
-
-		// controller.set_text(0, 0, std::to_string(odometry.getRotationDegrees()));
-
-		std::cout << "Pose X: " << chassis.getPose().getX() << " Y: " << chassis.getPose().getY() << " Theta: " << chassis.getPose().getTheta() << std::endl;
-
+	while (true) {
 		pros::delay(20);
 	}
 }
