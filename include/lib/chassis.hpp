@@ -35,20 +35,6 @@ class Chassis {
             });
         }
 
-    public:
-        /**
-         * @brief Construct a new Chassis object.
-         * @param drivetrain Pointer to the drivetrain object controlling the motors.
-         * @param odometry Pointer to the odometry object for tracking position. If nullptr, odometry is disabled.
-         */
-        Chassis(Drivetrain *drivetrain, Odometry *odometry);
-
-        /**
-         * @brief Construct a new Chassis object without odometry.
-         * @param drivetrain Pointer to the drivetrain object controlling the motors.
-         */
-        Chassis(Drivetrain *drivetrain) : drivetrain(drivetrain), odometry(nullptr) {}
-
         /**
          * @brief Scales an input value based on the selected input scaling method.
          * @param input The input value to scale (-127 to 127). 
@@ -132,7 +118,7 @@ class Chassis {
          * @param mode The brake mode to set.
          */
         void setBrakeMode(pros::motor_brake_mode_e_t mode);
-  
+
         /**
          * @brief Move the robot to a specific position using PID control.
          * @param targetPose The target pose to move to.
