@@ -31,7 +31,35 @@ void DifferentialChassis::tank(int leftY, int rightY) {
  * @param targetPose The target pose to move to.
  */
 void DifferentialChassis::moveToPose(Pose targetPose) {
-    // TODO: Implement MoveTo for DifferentialChassis
+    double linearError;
+    double angularError;
+    double absTargetAngle;
+    double leftOutput;
+    double rightOutput;
+    Pose robotPose = this->getPose();
+
+    while (robotPose.distanceTo(targetPose) > 1) {
+
+        linearError = robotPose.distanceTo(targetPose);
+
+        absTargetAngle = robotPose.angleTo(targetPose);
+		absTargetAngle = absTargetAngle < 0 ? absTargetAngle + M_TWOPI : absTargetAngle;
+		
+		angularError = absTargetAngle - this->getWorldFrameHeading();
+		if (angularError > M_PI or angularError < (-1 * M_PI)) {
+			angularError = -1 * std::copysign(1, angularError) * (M_TWOPI - abs(angularError));
+		}
+		
+        leftOutput = linearError * 2.5 - angularError * 20;
+        rightOutput = linearError * 2.5 + angularError * 20;
+
+        
+        this->tank(leftOutput, rightOutput);
+
+        robotPose = this->getPose();
+
+		pros::delay(20);
+    }
 }
 
 /**

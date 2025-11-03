@@ -154,7 +154,7 @@ void PurePursuitController::followPath(Trajectory trajectory, pros::Controller *
 
         // controller->print(0, 0, "L %.2f R %.2f", leftOutput, rightOutput);
 
-        chassis->tank(leftOutput, rightOutput);
+        // chassis->tank(leftOutput, rightOutput);
         
         robotPose = chassis->getPose(); // Update the robot's current pose
 
