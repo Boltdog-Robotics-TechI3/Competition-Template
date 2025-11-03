@@ -12,6 +12,7 @@ void Odometry::reset() {
         backWheel->reset();
     }
     if (imu) {
+        imu->reset(true);
         imu->tare();
     }
 }
@@ -35,9 +36,16 @@ std::array<double, 4> Odometry::getReadings() {
     return readings;
 }
 
-double Odometry::getRotation() {
+double Odometry::getRotationRadians() {
     if (imu) {
         return imu->get_rotation() * (M_PI / 180.0); // convert degrees to radians
+    }
+    return 0.0;
+}
+
+double Odometry::getRotationDegrees() {
+    if (imu) {
+        return imu->get_rotation();
     }
     return 0.0;
 }

@@ -1,24 +1,4 @@
 #include "main.h"
-#include <cmath>
-
-pros::Controller driver(pros::E_CONTROLLER_MASTER);
-
-pros::MotorGroup leftMotors({-10, -9, 8});
-pros::MotorGroup rightMotors({1, 2, -3});
-double wheelDiameter = 3.25;
-double trackWidth = 10.9375;
-double gearRatio = 36.0/48.0;// 1:1
-
-pros::IMU gyro(7); 
-
-TrackingWheel backWheel(5, 2, 0, WheelPosition::BACK); 
-TrackingWheel leftWheel(4, 2, 0, WheelPosition::LEFT); 
-
-Drivetrain drivetrain = Drivetrain(&leftMotors, &rightMotors, wheelDiameter, trackWidth, gearRatio);
-Odometry odometry = Odometry(&leftWheel, NULL, &backWheel, &gyro); // OdomSensors with left and back wheels
-
-Chassis chassis = Chassis(&drivetrain, &odometry);
-PurePursuitController purePursuitController(&chassis, 9);
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -27,10 +7,6 @@ PurePursuitController purePursuitController(&chassis, 9);
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	gyro.reset(true);
-	chassis.reset(); // Reset the chassis controller
-
-	// pros::lcd::initialize();
 }
 
 /**
@@ -62,19 +38,7 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {
-	Trajectory testTrajectory = TrajectoryGenerator::generateTrajectory({
-		Pose(0, 0, Pose::degToRad(0)),
-		Pose(0, 24, Pose::degToRad(-45)),
-		Pose(-48, 36, Pose::degToRad(-45)),
-		Pose(-54, 90, Pose::degToRad(45)),
-		Pose(6, 80, Pose::degToRad(135)),
-		Pose(12, 36, Pose::degToRad(180))
-
-	});
-
-	purePursuitController.followPath(testTrajectory, &driver);
-}
+void autonomous() {}
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -90,30 +54,7 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-
-
-	Pose pose;
-
-	// std::vector<Pose> waypoints = testTrajectory.getSplineWaypoints();
-
 	while (true) {
-		chassis.arcade(driver.get_analog(ANALOG_LEFT_Y), driver.get_analog(ANALOG_RIGHT_X));
-
-		pose = chassis.getPose();
-
-		if (driver.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-			autonomous();
-		}
-
-
-		// for (Pose waypoint : waypoints) {
-		// 	// driver.set_text(1, 0, std::to_string(Pose::radToDeg((-1 * waypoint.getTheta()) + (M_PI / 2.0))));
-		// 	driver.set_text(1, 0, waypoint.to_string());
-		// 	pros::delay(500);
-		// }
-
-		// driver.set_text(1,0, std::to_string((-1 * gyro.get_yaw() + 90)));
-		driver.print(1, 0, "X: %.2f Y: %.2f H: %.2f", pose.getX(), pose.getY(), Pose::radToDeg(pose.getTheta()));
 		pros::delay(20);
 	}
 }

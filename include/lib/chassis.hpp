@@ -6,12 +6,13 @@
 #include "pros/rtos.hpp"
 
 class Chassis {
-    private:
+    protected:
         Drivetrain *drivetrain;
         Odometry *odometry;
 
         Pose *pose;
-        PID *pidController;
+        PIDController *lateralPID;
+        PIDController *turnPID;
 
         bool tracking = false;
 
@@ -34,28 +35,58 @@ class Chassis {
             });
         }
 
+        /**
+         * @brief Scales an input value based on the selected input scaling method.
+         * @param input The input value to scale (-127 to 127). 
+         * @return The scaled input value.
+         */
+        double scaleInput(int input);
+
     public:
-        Chassis(Drivetrain *drivetrain, Odometry *odometry);
-        Chassis(Drivetrain *drivetrain) : drivetrain(drivetrain), odometry(nullptr) {}
+        enum InputScale {
+            LINEAR,
+            CUBIC,
+            QUINTIC,
+            SIN,
+            SINSQUARED,
+            TAN,
+            XTAN
+        };
+
+        InputScale inputScale = LINEAR;
+
+        Chassis(Drivetrain *drivetrain, Odometry *odometry)
+        : drivetrain(drivetrain), odometry(odometry), pose(new Pose()) {}
+        Chassis(Drivetrain *drivetrain) 
+        : drivetrain(drivetrain), odometry(nullptr) {}
+ 
+        /**
+         * @brief Sets the input scaling method. The input scaling affects how joystick inputs are translated to motor speeds.
+         * 
+         * LINEAR: Direct mapping.
+         * 
+         * CUBIC: Cubic curve for finer control at low speeds.
+         * 
+         * QUINTIC: Quintic curve for even finer control at low speeds.
+         * 
+         * SIN: Sine curve for smooth acceleration.
+         * 
+         * SINSQUARED: Sine squared curve for smooth acceleration and fine control at low speeds.
+         * 
+         * TAN: Tangent for aggressive acceleration. (may be unstable at high inputs)
+         * 
+         * XTAN: Exponential tangent curve for fine control at low speeds and aggressive at high speeds. (may be unstable at high inputs)
+         * 
+         * Link to a graphical representation of these curves: https://www.desmos.com/calculator/xrfbyvksxi
+         * 
+         * @param scale The input scaling method to set.
+         */
+        void setInputScale(InputScale scale);
 
         /**
          * @brief Resets the pose and all of the robot's sensors to their initial state.
          */
         void reset();
-
-        /**
-         * @brief Move the robot in arcade mode. The left joystick controls the forward/backward movement, and the right joystick controls the rotation.
-         * @param leftY The value of the left joystick (forward/backward movement).
-         * @param rightX The value of the right joystick (rotation).
-         */
-        void arcade(int leftY, int rightX);
-
-        /**
-         * @brief Move the robot in tank mode. The left joystick controls the left side motors, and the right joystick controls the right side motors.
-         * @param leftY The value of the left joystick (left side motors).
-         * @param rightY The value of the right joystick (right side motors).
-         */
-        void tank(int leftY, int rightY);
 
         /**
          * @brief Forcefully stop the robot's motors.
@@ -66,15 +97,13 @@ class Chassis {
          * @brief Get the robot's current pose (position and orientation).
          * @return The robot's current pose.
          */
-        Pose getPose() const { return *pose; }
-
-        double getWorldFrameHeading();
+        Pose getPose() const;
 
         /**
          * @brief Set the robot's current pose (position and orientation).
          * @param newPose The new pose to set.
          */
-        void setPose(Pose newPose) { *pose = newPose; }
+        void setPose(Pose newPose);
 
         /**
          * @brief Set the robot's current pose (position and orientation) using individual values.
@@ -82,22 +111,31 @@ class Chassis {
          * @param y The new y-coordinate.
          * @param theta The new orientation (in radians).
          */
-        void setPose(double x, double y, double theta) {
-            pose->setX(x);
-            pose->setY(y);
-            pose->setTheta(theta);
-        }
-        
+        void setPose(double x, double y, double theta);
+
+        /**
+         * @brief Get the robot's current heading in the world frame.
+         * @return The robot's current world frame heading in radians.
+         */        
+        double getWorldFrameHeading();
+
+        /**
+         * @brief Sets the brake mode for the drivetrain.
+         * @param mode The brake mode to set.
+         */
+        void setBrakeMode(pros::motor_brake_mode_e_t mode);
+
         /**
          * @brief Move the robot to a specific position using PID control.
          * @param targetPose The target pose to move to.
          */
-        void moveTo(Pose targetPose);
+        void virtual moveToPose(Pose targetPose) = 0;
 
-        void setBrakeMode(pros::motor_brake_mode_e_t mode) {
-            if (drivetrain) {
-                drivetrain->leftMotors->set_brake_mode(mode);
-                drivetrain->rightMotors->set_brake_mode(mode);
-            }
-        }
+        /**
+         * @brief Turn the robot to a specific angle using PID control.
+         * 0 Degrees is facing "forward" from the starting orientation.
+         * 
+         * @param targetAngle The target angle to turn to (in degrees).
+         */
+        void virtual turnAngle(double targetAngle) = 0;
 };
