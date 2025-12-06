@@ -55,10 +55,42 @@ class Chassis {
 
         InputScale inputScale = LINEAR;
 
+        /**
+         * @brief Construct a new Chassis object with full odometry and autonomous capabilities.
+         * @param drivetrain Pointer to the drivetrain.
+         * @param odometry Pointer to the odometry.
+         * @param lateralPID Pointer to the lateral PID controller.
+         * @param turnPID Pointer to the turn PID controller.
+         */
+        Chassis(Drivetrain *drivetrain, Odometry *odometry, PIDController *lateralPID, PIDController *turnPID)
+        : drivetrain(drivetrain), odometry(odometry), lateralPID(lateralPID), turnPID(turnPID), pose(new Pose()) {}
+
+        /**
+         * @brief Construct a new Chassis object with a drivetrain and odometry. 
+         * This chassis will have full odometry capabilities, but will not have autonomous features.
+         * @param drivetrain Pointer to the drivetrain.
+         * @param odometry Pointer to the odometry.
+         */
         Chassis(Drivetrain *drivetrain, Odometry *odometry)
-        : drivetrain(drivetrain), odometry(odometry), pose(new Pose()) {}
+        : drivetrain(drivetrain), odometry(odometry), lateralPID(nullptr), turnPID(nullptr), pose(new Pose()) {}
+
+        /**
+         * @brief Construct a new Chassis object with a drivetrain and PID controllers. 
+         * This chassis will not have odometry capabilities, but will have basic autonomous capabilities.
+         * @param drivetrain Pointer to the drivetrain.
+         * @param lateralPID Pointer to the lateral PID controller.
+         * @param turnPID Pointer to the turn PID controller.
+         */
+        Chassis(Drivetrain *drivetrain, PIDController *lateralPID, PIDController *turnPID) 
+        : drivetrain(drivetrain), odometry(nullptr), lateralPID(lateralPID), turnPID(turnPID) {}
+
+        /**
+         * @brief Construct a new Chassis object with only a drivetrain. 
+         * This chassis will not have odometry capabilities nor autonomous features.
+         * @param drivetrain Pointer to the drivetrain.
+         */
         Chassis(Drivetrain *drivetrain) 
-        : drivetrain(drivetrain), odometry(nullptr) {}
+        : drivetrain(drivetrain), odometry(nullptr), lateralPID(nullptr), turnPID(nullptr) {}
  
         /**
          * @brief Sets the input scaling method. The input scaling affects how joystick inputs are translated to motor speeds.
@@ -94,6 +126,12 @@ class Chassis {
         void stop();
 
         /**
+         * @brief Get the robot's current heading in the world frame.
+         * @return The robot's current world frame heading in radians.
+         */        
+        double getWorldFrameHeading();
+
+        /**
          * @brief Get the robot's current pose (position and orientation).
          * @return The robot's current pose.
          */
@@ -124,6 +162,17 @@ class Chassis {
          * @param mode The brake mode to set.
          */
         void setBrakeMode(pros::motor_brake_mode_e_t mode);
+
+        /**
+         * @brief Move the robot towards a specific position using a single step of PID control.
+         * 
+         * @note This method is intended to be called repeatedly in a loop until the target position is reached.
+         * Use moveToPose() for a blocking call that handles the loop internally and if the target pose won't change during the loop.
+         * Use this method if your target position may change dynamically.
+         * 
+         * @param targetPose The target pose to move to.
+         */
+        void virtual moveToPoseStep(Pose targetPose) = 0;
 
         /**
          * @brief Move the robot to a specific position using PID control.

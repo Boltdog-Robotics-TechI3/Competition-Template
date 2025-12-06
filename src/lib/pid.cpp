@@ -194,6 +194,8 @@ void PIDController::reset() {
  * Calculates the output of the PID controller based on the current measurement and setpoint.
  * This method should be called in a loop to continuously update the output.
  * 
+ * Be sure to call the reset() method before starting a new loop to ensure accurate results.
+ * 
  * @param measurement the current measurement of the system
  * @param setpoint the desired setpoint of the system
  * @return the output of the PID controller
