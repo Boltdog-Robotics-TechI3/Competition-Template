@@ -143,6 +143,7 @@ void Chassis::setBrakeMode(pros::motor_brake_mode_e_t mode) {
 
 //https://thepilons.ca/wp-content/uploads/2018/10/Tracking.pdf
 //TODO: Make tracking work with different odometry setups
+#warning TODO: Figure out why x and y signs arent correct (get rid of the * -1)
 void Chassis::trackPosition() {
     // Get current position
     std::array<double, 4> currentPose = odometry->getReadings();

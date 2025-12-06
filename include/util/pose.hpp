@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <cmath>
 
 class Pose {
     private:
@@ -58,11 +59,28 @@ class Pose {
         double angleTo(const Pose& other);
 
         /**
+         * @brief Offsets the current pose by another pose.
+         * @param other The pose to offset by.
+         * @return A new Pose object representing the offset pose.
+         */
+        Pose offset(const Pose& other);
+
+        /**
+         * @brief Offsets the current pose by the opposite of another pose.
+         * @param other The pose to offset by.
+         * @return A new Pose object representing the offset pose.
+         */
+        Pose negativeOffset(const Pose& other);
+
+        /**
          * @brief Rotates the pose by a given angle.
          * @param angle The angle to rotate by (in radians).
          * @return A new Pose object representing the rotated pose.
          */
         Pose rotate(double angle);
+
+        static double degToRad(double degrees) { return degrees * (M_PI / 180.0); }
+        static double radToDeg(double radians) { return radians * (180.0 / M_PI); }
 
         std::string to_string();
 };

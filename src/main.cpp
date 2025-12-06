@@ -1,35 +1,5 @@
 #include "main.h"
 
-PIDController lateralPID(1, 0.0, 0);
-PIDController turnPID(2, 0.0, 0);
-
-// Bot measurements
-double wheel_diameter = 3.25;
-double track_width = 10.75;
-double gear_ratio = 3.0/4.0;
-
-// Controller
-pros::Controller controller(pros::E_CONTROLLER_MASTER);
-
-// Motor Groups
-pros::MotorGroup rightMotors({1, 2, -3});
-pros::MotorGroup leftMotors({-10, -9, 8});
-pros::MotorGroup intakeMotors({6});
-
-// Drivetrain
-DifferentialDrivetrain drivetrain(&leftMotors, &rightMotors, wheel_diameter, track_width, gear_ratio);
-
-// Tracking Wheel
-pros::IMU imu(7);
-TrackingWheel horizontalTrackingWheel(5, 2.08, 0, WheelPosition::BACK);
-TrackingWheel verticalTrackingWheel(-4, 2.08, 0.25, WheelPosition::LEFT);
-
-// Odometry
-Odometry odometry(&verticalTrackingWheel, NULL, &horizontalTrackingWheel, &imu);
-
-// Chassis
-DifferentialChassis chassis(&drivetrain, &odometry, &lateralPID, &turnPID);
-
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -37,7 +7,6 @@ DifferentialChassis chassis(&drivetrain, &odometry, &lateralPID, &turnPID);
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	chassis.reset();
 }
 
 /**
@@ -70,7 +39,6 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	chassis.moveToPose(Pose(24, 6, 0));
 }
 
 /**
@@ -87,24 +55,7 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	controller.clear();
 	while (true) {
-		int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-		int leftX = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
-		int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
-		int rightY = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
-
-
-		// chassis.arcade(leftY, rightX);
-
-		// if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-		// 	autonomous();
-		// }
-
-		
-		// std::cout << "STICK: " << val << std::endl;
-		// std::cout << "ANGLE: " << std::to_string(imu.get_yaw()) << std::endl;
-
-		pros::delay(1000);
+		pros::delay(20);
 	}
 }

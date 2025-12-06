@@ -152,6 +152,12 @@ class Chassis {
         void setPose(double x, double y, double theta);
 
         /**
+         * @brief Get the robot's current heading in the world frame.
+         * @return The robot's current world frame heading in radians.
+         */        
+        double getWorldFrameHeading();
+
+        /**
          * @brief Sets the brake mode for the drivetrain.
          * @param mode The brake mode to set.
          */
