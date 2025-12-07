@@ -120,7 +120,7 @@ Pose PurePursuitController::getGoalPose(std::vector<Pose> waypoints, Pose robotP
     return goalPose;
 }
 
-void PurePursuitController::followPath(Trajectory trajectory, pros::Controller *controller) {
+void PurePursuitController::followPath(Trajectory trajectory, bool isForward) {
     std::vector<Pose> waypoints = trajectory.getSplineWaypoints();
     Pose robotPose = chassis->getPose(); // Get the robot's current pose from the chassis
     Pose goalPose;
@@ -131,34 +131,14 @@ void PurePursuitController::followPath(Trajectory trajectory, pros::Controller *
     double leftOutput;
     double rightOutput;
 
-    while (robotPose.distanceTo(waypoints[waypoints.size() - 1]) > 1) { // Continue until the robot is within 2 inches of the last waypoint
+    while (robotPose.distanceTo(waypoints[waypoints.size() - 1]) > 1) { // Continue until the robot is within 1 inches of the last waypoint
         goalPose = this->getGoalPose(waypoints, robotPose);
 
-        controller->print(0, 0, "X: %.3f Y: %.3f ", goalPose.getX(), goalPose.getY());
+        chassis->moveToPoseStep(goalPose, isForward);
 
-        linearError = robotPose.distanceTo(goalPose);
-
-        absTargetAngle = robotPose.angleTo(goalPose);
-		absTargetAngle = absTargetAngle < 0 ? absTargetAngle + M_TWOPI : absTargetAngle;
-		
-		angularError = absTargetAngle - chassis->getWorldFrameHeading();
-		if (angularError > M_PI || angularError < (-1 * M_PI)) {
-			angularError = -1 * std::copysign(1, angularError) * (M_TWOPI - abs(angularError));
-		}
-		
-        leftOutput = std::clamp(linearError * 6, -40.0, 40.0) - angularError * 15;
-        rightOutput = std::clamp(linearError * 6, -40.0, 40.0) + angularError * 15;
-
-        // leftOutput = std::clamp(leftOutput, -70.0, 70.0);
-        // rightOutput = std::clamp(rightOutput, -70.0, 70.0);
-
-        // controller->print(0, 0, "L %.2f R %.2f", leftOutput, rightOutput);
-
-        // chassis->tank(leftOutput, rightOutput);
-        
         robotPose = chassis->getPose(); // Update the robot's current pose
 
-        pros::delay(20);
+        pros::delay(100);
     }
 }
 

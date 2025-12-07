@@ -37,31 +37,24 @@ void DifferentialChassis::tank(int leftY, int rightY) {
  * 
  * @param targetPose The target pose to move to.
  */
-void DifferentialChassis::moveToPoseStep(Pose targetPose) {
-    double linearError;
-    double angularError;
-    double absTargetAngle;
-    double lateralOutput;
-    double turnOutput;
-    double leftOutput;
-    double rightOutput;
-    
+void DifferentialChassis::moveToPoseStep(Pose targetPose, bool isForward) {
+    double linearError = pose->distanceTo(targetPose);
 
-    linearError = pose->distanceTo(targetPose);
-
-    absTargetAngle = pose->angleTo(targetPose);
+    double absTargetAngle = pose->angleTo(targetPose) + (isForward ? 0 : M_PI);
     absTargetAngle = absTargetAngle < 0 ? absTargetAngle + M_TWOPI : absTargetAngle;
     
-    angularError = absTargetAngle - getWorldFrameHeading();
+    double angularError = absTargetAngle - getWorldFrameHeading();
     if (angularError > M_PI or angularError < (-1 * M_PI)) {
         angularError = -1 * std::copysign(1, angularError) * (M_TWOPI - abs(angularError));
     }
 
-    lateralOutput = lateralPID->calculate(linearError, 0);
-    turnOutput = turnPID->calculate(angularError, 0);
+    double lateralOutput = (lateralPID->calculate(linearError, 0) - 10) * (isForward ? -1 : 1);
+    double turnOutput = -turnPID->calculate(angularError, 0);
+
+    std::cout << "Linear Error: " << linearError << " | Angular Error: " << Pose::radToDeg(angularError) << " | Lateral Output: " << lateralOutput << " | Turn Output: " << turnOutput << std::endl;
         
-    leftOutput = lateralOutput - turnOutput;
-    rightOutput = lateralOutput + turnOutput;
+    double leftOutput = lateralOutput - turnOutput;
+    double rightOutput = lateralOutput + turnOutput;
 
     tank(leftOutput, rightOutput);
 }
@@ -70,11 +63,11 @@ void DifferentialChassis::moveToPoseStep(Pose targetPose) {
  * @brief Move the robot to a specific position using PID control.
  * @param targetPose The target pose to move to.
  */
-void DifferentialChassis::moveToPose(Pose targetPose) {
-    while (pose->distanceTo(targetPose) > 1) {
-        moveToPoseStep(targetPose);
+void DifferentialChassis::moveToPose(Pose targetPose, bool isForward) {
+    while (pose->distanceTo(targetPose) > .5) {
+        moveToPoseStep(targetPose, isForward);
 
-		pros::delay(20);
+		pros::delay(100);
     }
 }
 

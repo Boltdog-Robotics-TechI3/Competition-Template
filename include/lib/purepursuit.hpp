@@ -52,7 +52,7 @@ class PurePursuitController {
         */
         Pose getGoalPose(std::vector<Pose> waypoints, Pose robotPose);
 
-        void followPath(Trajectory trajectory, pros::Controller *controller = nullptr);
+        void followPath(Trajectory trajectory, bool isForward = true);
 
         /**
          * @brief Sets the look-ahead distance for the Pure Pursuit controller.

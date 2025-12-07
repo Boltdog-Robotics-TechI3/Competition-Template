@@ -152,12 +152,6 @@ class Chassis {
         void setPose(double x, double y, double theta);
 
         /**
-         * @brief Get the robot's current heading in the world frame.
-         * @return The robot's current world frame heading in radians.
-         */        
-        double getWorldFrameHeading();
-
-        /**
          * @brief Sets the brake mode for the drivetrain.
          * @param mode The brake mode to set.
          */
@@ -171,14 +165,18 @@ class Chassis {
          * Use this method if your target position may change dynamically.
          * 
          * @param targetPose The target pose to move to.
+         * @param isForward Whether the robot should move forward (true) or backward (false) to the target pose.
+         * 
          */
-        void virtual moveToPoseStep(Pose targetPose) = 0;
+        void virtual moveToPoseStep(Pose targetPose, bool isForward = true) = 0;
 
         /**
          * @brief Move the robot to a specific position using PID control.
          * @param targetPose The target pose to move to.
+         * @param isForward Whether the robot should move forward (true) or backward (false) to the target pose.q
+         * 
          */
-        void virtual moveToPose(Pose targetPose) = 0;
+        void virtual moveToPose(Pose targetPose, bool isForward = true) = 0;
 
         /**
          * @brief Turn the robot to a specific angle using PID control.

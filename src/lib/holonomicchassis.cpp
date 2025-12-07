@@ -82,7 +82,7 @@ void HolonomicChassis::fieldCentricHeadingDrive(int leftX, int leftY, int rightX
  * @brief Move the robot to a specific position using PID control.
  * @param targetPose The target pose to move to.
  */
-void HolonomicChassis::moveToPose(Pose targetPose) {
+void HolonomicChassis::moveToPose(Pose targetPose, bool isForward) {
     // TODO: Implement MoveTo for HolonomicChassis
 }
 

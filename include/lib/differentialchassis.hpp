@@ -70,8 +70,9 @@ class DifferentialChassis : public Chassis {
          * @note This method ignores the angle of the target pose and only drives to the x and y coordinates.
          * 
          * @param targetPose The target pose to move to.
+         * @param isForward Whether the robot should move forward (true) or backward (false) to the target pose.
          */
-        void moveToPoseStep(Pose targetPose) override;
+        void moveToPoseStep(Pose targetPose, bool isForward = true) override;
 
         /**
          * @brief Move the robot to a specific position using PID control. This method blocks until the target position is reached.
@@ -79,8 +80,9 @@ class DifferentialChassis : public Chassis {
          * @note This method ignores the angle of the target pose and only drives to the x and y coordinates.
          * 
          * @param targetPose The target pose to move to.
+         * @param isForward Whether the robot should move forward (true) or backward (false) to the target pose.
          */
-        void moveToPose(Pose targetPose) override;
+        void moveToPose(Pose targetPose, bool isForward = true) override;
 
         /**
          * @brief Turn the robot to a specific angle using PID control.
