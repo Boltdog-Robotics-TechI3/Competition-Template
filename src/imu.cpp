@@ -8,6 +8,9 @@ class Imu {
 
     public:
 
+	//constants
+	static const int num_test_vals = 5;
+
     //constructor
     Imu(int port) : imu(port) {}
 
@@ -64,9 +67,9 @@ class Imu {
 
     float* get_test_vals(){
 
-            float* yaws = new float[5];
+            float* yaws = new float[num_test_vals];
 
-        	for (int i = 0; i < 5; i++){
+        	for (int i = 0; i < num_test_vals; i++){
     		yaws[i] = imu.get_yaw();
     		//master.print(0, 0, "%f ", yaws[i]);
     		pros::delay(10);
