@@ -10,10 +10,20 @@ class Imu {
 
 	//constants
 	static const int num_test_vals = 5;
+	static const int num_std_dev = 2;
+
+	//not constants
+	float mean;
+	float std_dev;
 
     //constructor
-    Imu(int port) : imu(port) {}
+    Imu(int port) : imu(port) {
+		calibrate();
+	}
 
+	//
+
+	//other functions
     float medianFilter(){
     	/*Uses a median filter to account for noise
     	in the gyro readings.
@@ -54,8 +64,6 @@ class Imu {
 
     	float variances[pop_size];
 
-    	float mean = get_mean(data);
-
     	for (int i = 0; i < pop_size; i++){
     		variances[i] = pow((data[i] - mean), 2);
     	}
@@ -66,6 +74,10 @@ class Imu {
     }
 
     float* get_test_vals(){
+		/*Gets a number of yaw data points from the imu
+		with a 10 ms delay between each, then returns 
+		them as an array. Default number of points is 5
+		*/
 
             float* yaws = new float[num_test_vals];
 
@@ -77,5 +89,19 @@ class Imu {
 
         return yaws;
     }
+
+	void calibrate(){
+		/*Calibrates IMU*/
+
+		//call pros default reset function
+		imu.reset();
+
+		//get test vals
+		float* test_values = get_test_vals();
+
+		//calculate mean and standard deviation
+		mean = get_mean(test_values);
+		std_dev = get_std_dev(test_values);
+	}
 
 };
