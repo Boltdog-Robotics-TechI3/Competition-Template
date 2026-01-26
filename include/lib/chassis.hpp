@@ -1,6 +1,7 @@
 #pragma once
 #include "drivetrain.hpp"
-#include "odometry.hpp"
+#include "odom_sensors.hpp"
+#include "ukf_odom.hpp"
 #include "pid.hpp"
 #include "util/pose.hpp"
 #include "pros/rtos.hpp"
@@ -8,7 +9,8 @@
 class Chassis {
     protected:
         Drivetrain *drivetrain;
-        Odometry *odometry;
+        OdomSensors *odometry;
+        UKF_Odom *filter;
 
         Pose *pose;
         PIDController *lateralPID;
@@ -22,6 +24,11 @@ class Chassis {
         void trackPosition();
 
         /**
+         * @brief Calculate the robot's current position using an Unscented Kalman Filter. Runs constantly in parallel with other tasks.
+         */
+        void updateFilter();
+
+        /**
          * @brief Starts the tracking task if it is not already running.
          */
         void startTracking() {
@@ -29,7 +36,8 @@ class Chassis {
             pros::Task trackingTask([this]
             {
                 while (true) {
-                    trackPosition();
+                    // trackPosition();
+                    updateFilter();
                     pros::delay(20); // avoid tight loop
                 }
             });
@@ -55,7 +63,7 @@ class Chassis {
 
         InputScale inputScale = LINEAR;
 
-        Chassis(Drivetrain *drivetrain, Odometry *odometry)
+        Chassis(Drivetrain *drivetrain, OdomSensors *odometry)
         : drivetrain(drivetrain), odometry(odometry), pose(new Pose()) {}
         Chassis(Drivetrain *drivetrain) 
         : drivetrain(drivetrain), odometry(nullptr) {}

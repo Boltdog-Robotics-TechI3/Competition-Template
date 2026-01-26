@@ -137,25 +137,25 @@ void Chassis::setBrakeMode(pros::motor_brake_mode_e_t mode) {
 //TODO: Make tracking work with different odometry setups
 void Chassis::trackPosition() {
     // Get current position
-    std::array<double, 4> currentPose = odometry->getReadings();
+    std::array<double, 3> currentPose = odometry->getReadings();
 
-    double currentLeft = currentPose[0];
+    double currentVertical = currentPose[0];
     // auto currentRight = currentPose[1];
-    double currentBack = currentPose[2];
+    double currentHorizontal = currentPose[2];
 
     // Calculate changes since last reading
-    double previousLeft = odometry->leftWheel->getLastPosition();
+    double previousVertical = odometry->verticalWheel->getLastPosition();
     // auto previousRight = odometry->rightWheel->getLastPosition();
-    double previousBack = odometry->backWheel->getLastPosition();
+    double previousHorizontal = odometry->horizontalWheel->getLastPosition();
 
-    double leftChange = currentLeft - previousLeft;
+    double verticalChange = currentVertical - previousVertical;
     // auto rightChange = currentRight - previousRight;
-    double backChange = currentBack - previousBack;
+    double horizontalChange = currentHorizontal - previousHorizontal;
 
     // Update previous positions
-    odometry->leftWheel->setLastPosition(currentLeft);
+    odometry->verticalWheel->setLastPosition(currentVertical);
     //odometry->rightWheel->setLastPosition(currentRight);
-    odometry->backWheel->setLastPosition(currentBack);
+    odometry->horizontalWheel->setLastPosition(currentHorizontal);
 
     Pose formerPosition = getPose();
 
@@ -165,11 +165,11 @@ void Chassis::trackPosition() {
     // Calculate local displacement vector
     double deltaDl[2]; 
     if(delTheta == 0){
-        deltaDl[0] = backChange;
-        deltaDl[1] = leftChange;
+        deltaDl[0] = horizontalChange;
+        deltaDl[1] = verticalChange;
     } else {
-        deltaDl[0] = (2 * sin(delTheta / 2)) * ((backChange / delTheta) + (odometry->backWheel->getOffset()));
-        deltaDl[1] = (2 * sin(delTheta / 2)) * ((leftChange / delTheta) + (odometry->leftWheel->getOffset()));
+        deltaDl[0] = (2 * sin(delTheta / 2)) * ((horizontalChange / delTheta) + (odometry->horizontalWheel->getOffset()));
+        deltaDl[1] = (2 * sin(delTheta / 2)) * ((verticalChange / delTheta) + (odometry->verticalWheel->getOffset()));
     }
     Pose deltaD = Pose(deltaDl[0], deltaDl[1], delTheta);
     
@@ -181,4 +181,16 @@ void Chassis::trackPosition() {
 
     // Update the position
     setPose(formerPosition.getX() + deltaD.getX(), formerPosition.getY() + deltaD.getY(), odometry->getRotationRadians());
+}
+
+/**
+ * @brief Calculate the robot's current position using an Unscented Kalman Filter. Runs constantly in parallel with other tasks.
+ */
+void Chassis::updateFilter() {
+    Eigen::Vector<float, 2> controlInput;
+    controlInput.setZero();
+    filter->predict(controlInput);
+
+    Eigen::Vector<float, 2> measurements;
+    // measurements(0) = odometry
 }
