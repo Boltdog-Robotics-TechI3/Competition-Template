@@ -7,21 +7,21 @@ void Pose::setPose(Pose newPose) {
     theta = newPose.getTheta();
 }
 
-double Pose::distanceTo(const Pose& other) {
-    double dx = other.getX() - x;
-    double dy = other.getY() - y;
+float Pose::distanceTo(const Pose& other) {
+    float dx = other.getX() - x;
+    float dy = other.getY() - y;
     return std::sqrt(dx * dx + dy * dy);
 }
 
-double Pose::angleTo(const Pose& other) {
-    double dx = other.getX() - x;
-    double dy = other.getY() - y;
+float Pose::angleTo(const Pose& other) {
+    float dx = other.getX() - x;
+    float dy = other.getY() - y;
     return std::atan2(dy, dx);
 }
 
-Pose Pose::rotate(double angle) {
-    double magnitude = sqrt((x*x) + (y*y));
-    double theta = (atan2(x, y));
+Pose Pose::rotate(float angle) {
+    float magnitude = sqrt((x*x) + (y*y));
+    float theta = (atan2(x, y));
 
     theta += angle;
 

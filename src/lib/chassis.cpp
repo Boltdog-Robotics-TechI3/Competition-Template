@@ -6,9 +6,9 @@
  * @param input The input value to scale (-127 to 127). 
  * @return The scaled input value.
  */
-double Chassis::scaleInput(int input) {
-    double normalizedInput = (double)input / 127.0;
-    double scaledInput = 0.0;
+float Chassis::scaleInput(int input) {
+    float normalizedInput = (float)input / 127.0;
+    float scaledInput = 0.0;
 
     bool isNegative = normalizedInput < 0;
 
@@ -77,12 +77,10 @@ void Chassis::setInputScale(InputScale scale) {
 void Chassis::reset() {
     if (odometry) {
         odometry->reset();
+        runTracking();
     }
     if (drivetrain) {
         drivetrain->setMotorSpeeds({0, 0, 0, 0, 0});
-    }
-    if (!tracking) {
-        startTracking();
     }
 }
 
@@ -95,12 +93,16 @@ void Chassis::stop() {
     }
 }
 
+void Chassis::startTracking() {
+    tracking = true; 
+}
+
 /**
  * @brief Get the robot's current pose (position and orientation).
  * @return The robot's current pose.
  */
 Pose Chassis::getPose() const { 
-    return *pose; 
+    return pose; 
 }
 
 /**
@@ -108,7 +110,7 @@ Pose Chassis::getPose() const {
  * @param newPose The new pose to set.
  */
 void Chassis::setPose(Pose newPose) { 
-    *pose = newPose; 
+    pose = newPose; 
 }
 
 /**
@@ -117,10 +119,10 @@ void Chassis::setPose(Pose newPose) {
  * @param y The new y-coordinate.
  * @param theta The new orientation (in radians).
  */
-void Chassis::setPose(double x, double y, double theta) {
-    pose->setX(x);
-    pose->setY(y);
-    pose->setTheta(theta);
+void Chassis::setPose(float x, float y, float theta) {
+    pose.setX(x);
+    pose.setY(y);
+    pose.setTheta(theta);
 }
 
 /**
@@ -137,20 +139,20 @@ void Chassis::setBrakeMode(pros::motor_brake_mode_e_t mode) {
 //TODO: Make tracking work with different odometry setups
 void Chassis::trackPosition() {
     // Get current position
-    std::array<double, 3> currentPose = odometry->getReadings();
+    std::array<float, 3> currentPose = odometry->getReadings();
 
-    double currentVertical = currentPose[0];
+    float currentVertical = currentPose[0];
     // auto currentRight = currentPose[1];
-    double currentHorizontal = currentPose[2];
+    float currentHorizontal = currentPose[2];
 
     // Calculate changes since last reading
-    double previousVertical = odometry->verticalWheel->getLastPosition();
+    float previousVertical = odometry->verticalWheel->getLastPosition();
     // auto previousRight = odometry->rightWheel->getLastPosition();
-    double previousHorizontal = odometry->horizontalWheel->getLastPosition();
+    float previousHorizontal = odometry->horizontalWheel->getLastPosition();
 
-    double verticalChange = currentVertical - previousVertical;
+    float verticalChange = currentVertical - previousVertical;
     // auto rightChange = currentRight - previousRight;
-    double horizontalChange = currentHorizontal - previousHorizontal;
+    float horizontalChange = currentHorizontal - previousHorizontal;
 
     // Update previous positions
     odometry->verticalWheel->setLastPosition(currentVertical);
@@ -160,10 +162,10 @@ void Chassis::trackPosition() {
     Pose formerPosition = getPose();
 
     // Calculate the change in orientation
-    double delTheta = odometry->getRotationRadians() - formerPosition.getTheta();
+    float delTheta = odometry->getRotationRadians() - formerPosition.getTheta();
     
     // Calculate local displacement vector
-    double deltaDl[2]; 
+    float deltaDl[2]; 
     if(delTheta == 0){
         deltaDl[0] = horizontalChange;
         deltaDl[1] = verticalChange;
@@ -174,7 +176,7 @@ void Chassis::trackPosition() {
     Pose deltaD = Pose(deltaDl[0], deltaDl[1], delTheta);
     
     // Calculate average orientation
-    double thetaM = formerPosition.getTheta() + (delTheta / 2);
+    float thetaM = formerPosition.getTheta() + (delTheta / 2);
 
     // Rotate local displacement to global frame
     deltaD = deltaD.rotate(-1*thetaM);
@@ -187,10 +189,15 @@ void Chassis::trackPosition() {
  * @brief Calculate the robot's current position using an Unscented Kalman Filter. Runs constantly in parallel with other tasks.
  */
 void Chassis::updateFilter() {
-    Eigen::Vector<float, 2> controlInput;
+    Eigen::Matrix<float, 2,1 > controlInput;
     controlInput.setZero();
     filter->predict(controlInput);
 
-    Eigen::Vector<float, 2> measurements;
-    // measurements(0) = odometry
+    Eigen::Matrix<float, 2, 1> measurements;
+    measurements(0) = odometry->getBodyVelX();
+    measurements(1) = odometry->getBodyVelY();
+    filter->update(measurements);
+
+    Eigen::Matrix<float, 6, 1> estimate = filter->getState();
+    setPose(estimate(0), estimate(1), estimate(5));
 }

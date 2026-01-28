@@ -18,7 +18,7 @@ class HolonomicDrivetrain : public Drivetrain {
         HolonomicDrivetrain(pros::MotorGroup *leftFrontModule, pros::MotorGroup *rightFrontModule,
                            pros::MotorGroup *leftBackModule, pros::MotorGroup *rightBackModule,
                            pros::MotorGroup *sideMotors,
-                           double wheelDiameter, double wheelTrackWidth, double gearRatio)
+                           float wheelDiameter, float wheelTrackWidth, float gearRatio)
         : Drivetrain(wheelDiameter, wheelTrackWidth, gearRatio),
           frontLeftModule(leftFrontModule), frontRightModule(rightFrontModule),
           backLeftModule(leftBackModule), backRightModule(rightBackModule),
@@ -26,7 +26,7 @@ class HolonomicDrivetrain : public Drivetrain {
 
         HolonomicDrivetrain(pros::MotorGroup *leftFrontModule, pros::MotorGroup *rightFrontModule,
                            pros::MotorGroup *leftBackModule, pros::MotorGroup *rightBackModule,
-                           double wheelDiameter, double wheelTrackWidth, double gearRatio)
+                           float wheelDiameter, float wheelTrackWidth, float gearRatio)
         : Drivetrain(wheelDiameter, wheelTrackWidth, gearRatio),
           frontLeftModule(leftFrontModule), frontRightModule(rightFrontModule),
           backLeftModule(leftBackModule), backRightModule(rightBackModule),

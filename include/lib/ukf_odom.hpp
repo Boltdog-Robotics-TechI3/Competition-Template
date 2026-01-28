@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
+#include <array>
 #include <functional>
+#include <iostream>
 #include "Eigen/Eigen"
 #include "odom_sensors.hpp"
 #include "util/pose.hpp"
@@ -17,15 +19,15 @@ class UKF_Odom {
         static constexpr int numControlInputs = 2;
 
         // Type aliases
-        using stateVector = Eigen::Vector<float, numStates>;
+        using stateVector = Eigen::Matrix<float, numStates, 1>;
         using stateMatrix = Eigen::Matrix<float, numStates, numStates>;
 
-        using measurementVector = Eigen::Vector<float, numMeasurements>;
+        using measurementVector = Eigen::Matrix<float, numMeasurements, 1>;
         using measurementMatrix = Eigen::Matrix<float, numMeasurements, numMeasurements>;
 
-        using controlInputVector = Eigen::Vector<float, numControlInputs>;
+        using controlInputVector = Eigen::Matrix<float, numControlInputs, 1>;
 
-        using sigmaPointWeights = Eigen::Vector<float, numSigmaPoints>;
+        using sigmaPointWeights = Eigen::Matrix<float, numSigmaPoints, 1>;
         using sigmaPointStateMatrix = Eigen::Matrix<float, numStates, numSigmaPoints>;
         using sigmaPointMeasurementMatrix = Eigen::Matrix<float, numMeasurements, numSigmaPoints>;
 
@@ -38,7 +40,7 @@ class UKF_Odom {
         static constexpr float alpha = 0.1;
         static constexpr float beta = 2;
         static constexpr float kappa = -3;
-        static float lambda;
+        float lambda = 0;
 
   
 
@@ -76,35 +78,35 @@ class UKF_Odom {
         sigmaPointWeights wC;
 
         // Methods
-        stateVector fx(stateVector s, controlInputVector C);
-        measurementVector hx(stateVector s);
-        
-        stateVector unscentedTransformStateMean(sigmaPointStateMatrix Y, sigmaPointWeights wM, std::function<stateVector(sigmaPointStateMatrix, sigmaPointWeights)> meanFunc = {});
-        stateMatrix unscentedTransfromStateCovariance(stateVector x, sigmaPointStateMatrix Y, sigmaPointWeights wC, stateMatrix Q, std::function<stateVector(stateVector, stateVector)> residualFunc = {});
-        
-        measurementVector unscentedTransformMeasurementMean(sigmaPointMeasurementMatrix Z, sigmaPointWeights wM, std::function<measurementVector(sigmaPointMeasurementMatrix, sigmaPointWeights)> meanFunc = {});
-        measurementMatrix unscentedTransfromMeasurementCovariance(measurementVector z, sigmaPointMeasurementMatrix Z, sigmaPointWeights wC, measurementMatrix R, std::function<measurementVector(measurementVector, measurementVector)> residualFunc = {});
-    
-        sigmaPointStateMatrix computeSigmaPoints(stateVector x, stateMatrix P);
+        stateVector fx(const stateVector& sx, const controlInputVector& C);
+        measurementVector hx(const stateVector& sy);
+                
+        stateVector unscentedTransformStateMean(const sigmaPointStateMatrix& Y, const sigmaPointWeights& wM, std::function<stateVector(const sigmaPointStateMatrix&, const sigmaPointWeights&)> meanFunc);
+        stateMatrix unscentedTransfromStateCovariance(const stateVector& x, const sigmaPointStateMatrix& Y, const sigmaPointWeights& wC, const stateMatrix& Q, std::function<stateVector(const stateVector&, const stateVector&)> residualFunc);
+                
+        measurementVector unscentedTransformMeasurementMean(const sigmaPointMeasurementMatrix& Z, const sigmaPointWeights& wM, std::function<measurementVector(const sigmaPointMeasurementMatrix &, const sigmaPointWeights&)> meanFunc);
+        measurementMatrix unscentedTransfromMeasurementCovariance(const measurementVector& z, const sigmaPointMeasurementMatrix& Z, const sigmaPointWeights& wC, const measurementMatrix& R, std::function<measurementVector(const measurementVector&, const measurementVector&)> residualFunc);
+            
+        sigmaPointStateMatrix computeSigmaPoints(const stateVector& x, const stateMatrix& P);
         void computeWeights();
 
-        stateVector stateMean(sigmaPointStateMatrix Y, sigmaPointWeights wM);
-        stateVector stateResidual(stateVector s, stateVector x);
+        stateVector stateMean(const sigmaPointStateMatrix& Y, const sigmaPointWeights& wM);
+        stateVector stateResidual(const stateVector& s, const stateVector& x);
 
-        measurementVector measurementResidual(measurementVector s, measurementVector zp);
+        measurementVector measurementResidual(const measurementVector& s, const measurementVector& zp);
 
-        stateVector stateAdd(stateVector a, stateVector b);
+        stateVector stateAdd(const stateVector& a, const stateVector& b);
 
-        kalmanGain computeCrossVariance(stateVector x, measurementVector zp, sigmaPointStateMatrix Y, sigmaPointMeasurementMatrix Z, sigmaPointWeights wC);
+        kalmanGain computeCrossVariance(const stateVector& x, const measurementVector& zp, const sigmaPointStateMatrix& Y, const sigmaPointMeasurementMatrix& Z, const sigmaPointWeights& wC);
 
         float normalizeAngle(float theta);
 
     public:
-        UKF_Odom(OdomSensors *sensors, Pose *startingPose);
+        UKF_Odom(OdomSensors *sensors, const Pose& startingPose);
         UKF_Odom(OdomSensors *sensors);
 
-        void predict(controlInputVector C);
-        void update(measurementVector z);
+        void predict(const controlInputVector& C);
+        void update(const measurementVector& z);
 
         stateVector getState() {
             return x;

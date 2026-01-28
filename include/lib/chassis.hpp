@@ -1,10 +1,13 @@
 #pragma once
+#include <iostream>
+
 #include "drivetrain.hpp"
 #include "odom_sensors.hpp"
 #include "ukf_odom.hpp"
 #include "pid.hpp"
 #include "util/pose.hpp"
 #include "pros/rtos.hpp"
+#include "Eigen/Eigen"
 
 class Chassis {
     protected:
@@ -12,7 +15,7 @@ class Chassis {
         OdomSensors *odometry;
         UKF_Odom *filter;
 
-        Pose *pose;
+        Pose pose;
         PIDController *lateralPID;
         PIDController *turnPID;
 
@@ -29,17 +32,27 @@ class Chassis {
         void updateFilter();
 
         /**
-         * @brief Starts the tracking task if it is not already running.
+         * @brief Runs the tracking task if it is not already running.
          */
-        void startTracking() {
-            tracking = true;
+        void runTracking() {
             pros::Task trackingTask([this]
             {
                 while (true) {
-                    // trackPosition();
-                    updateFilter();
-                    pros::delay(20); // avoid tight loop
+                    while (tracking) {
+                        odometry->update();
+                        if (filter) {
+                            updateFilter();
+                        }
+                        else {
+                            trackPosition();
+                        }
+                        pros::delay(20); // avoid tight loop
+                    }
+                    pros::delay(20);
                 }
+
+                tracking = false;
+                delete filter;
             });
         }
 
@@ -48,7 +61,7 @@ class Chassis {
          * @param input The input value to scale (-127 to 127). 
          * @return The scaled input value.
          */
-        double scaleInput(int input);
+        float scaleInput(int input);
 
     public:
         enum InputScale {
@@ -63,10 +76,12 @@ class Chassis {
 
         InputScale inputScale = LINEAR;
 
+        Chassis(Drivetrain *drivetrain, OdomSensors *odometry, UKF_Odom *filter)
+        : drivetrain(drivetrain), odometry(odometry), filter(filter), pose(Pose{}) {}
         Chassis(Drivetrain *drivetrain, OdomSensors *odometry)
-        : drivetrain(drivetrain), odometry(odometry), pose(new Pose()) {}
+        : drivetrain(drivetrain), odometry(odometry), pose(Pose{}) {}
         Chassis(Drivetrain *drivetrain) 
-        : drivetrain(drivetrain), odometry(nullptr) {}
+        : drivetrain(drivetrain), odometry(nullptr), pose(Pose{}) {}
  
         /**
          * @brief Sets the input scaling method. The input scaling affects how joystick inputs are translated to motor speeds.
@@ -102,6 +117,11 @@ class Chassis {
         void stop();
 
         /**
+         * @brief Enables pose estimation.
+         */
+        void startTracking();
+
+        /**
          * @brief Get the robot's current pose (position and orientation).
          * @return The robot's current pose.
          */
@@ -119,7 +139,7 @@ class Chassis {
          * @param y The new y-coordinate.
          * @param theta The new orientation (in radians).
          */
-        void setPose(double x, double y, double theta);
+        void setPose(float x, float y, float theta);
 
         /**
          * @brief Sets the brake mode for the drivetrain.
@@ -139,5 +159,5 @@ class Chassis {
          * 
          * @param targetAngle The target angle to turn to (in degrees).
          */
-        void virtual turnAngle(double targetAngle) = 0;
+        void virtual turnAngle(float targetAngle) = 0;
 };

@@ -1,14 +1,13 @@
 #include <cmath>
 #include "lib/odom_sensors.hpp"
 
-void OdomSensors::calculateBodyFrameVelocities() {    
-    int dt = currentTime - previousTime;
+void OdomSensors::calculateBodyFrameVelocities(float dt) {    
     float vertWheelSpeed = verticalWheel->getWheelVelocity();
     float horzWheelSpeed = horizontalWheel->getWheelVelocity();
     float angularVelocity = getAngularVelocity();
 
-    bodyVelocityX = vertWheelSpeed - angularVelocity * dt;
-    bodyVelocityY = horzWheelSpeed - angularVelocity * dt;
+    bodyVelocityY = vertWheelSpeed - (angularVelocity * verticalWheel->getOffset());
+    bodyVelocityX = horzWheelSpeed - (angularVelocity * horizontalWheel->getOffset());
 }
 
 void OdomSensors::reset() {
@@ -30,13 +29,18 @@ void OdomSensors::reset() {
 void OdomSensors::update() {
     currentTime = pros::millis();
 
-    calculateBodyFrameVelocities();
+    float dt = (currentTime - previousTime) / 1000.0;
+
+    verticalWheel->calculateVelocity(dt);
+    horizontalWheel->calculateVelocity(dt);
+
+    calculateBodyFrameVelocities(dt);
 
     previousTime = currentTime;
 }
 
-std::array<double, 3> OdomSensors::getReadings() {
-    std::array<double, 3> readings = {0.0, 0.0, 0.0}; // vertical, horizontal, rotation
+std::array<float, 3> OdomSensors::getReadings() {
+    std::array<float, 3> readings = {0.0, 0.0, 0.0}; // vertical, horizontal, rotation
     if (verticalWheel) {
         readings[0] = verticalWheel->getDistance();
     }
@@ -51,21 +55,21 @@ std::array<double, 3> OdomSensors::getReadings() {
     return readings;
 }
 
-double OdomSensors::getRotationRadians() {
+float OdomSensors::getRotationRadians() {
     if (imu) {
         return imu->get_rotation() * (M_PI / 180.0); // convert degrees to radians
     }
     return 0.0;
 }
 
-double OdomSensors::getRotationDegrees() {
+float OdomSensors::getRotationDegrees() {
     if (imu) {
         return imu->get_rotation();
     }
     return 0.0;
 }
 
-double OdomSensors::getAngularVelocity() {
+float OdomSensors::getAngularVelocity() {
     if (imu) {
         return (imu->get_gyro_rate().z) * M_PI / 180;
     }

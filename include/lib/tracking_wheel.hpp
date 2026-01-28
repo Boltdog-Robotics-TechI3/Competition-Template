@@ -11,14 +11,12 @@ enum class WheelPosition {
 class TrackingWheel {
     private:
         pros::Rotation* encoder;
-        double wheelDiameter; // in inches
-        double offset;
+        float wheelDiameter; // in inches
+        float offset;
         WheelPosition orientation;
-        double lastPosition = 0.0; // in inches
-        double totalDistance = 0.0; // in inches
-        double velocity; // raw velocity of the wheel
-        int previousTime;
-        int currentTime;
+        float lastPosition = 0.0; // in inches
+        float totalDistance = 0.0; // in inches
+        float velocity; // raw velocity of the wheel
         friend class Chassis;
         
     public:
@@ -29,11 +27,8 @@ class TrackingWheel {
          * @param offset The offset of the tracking wheel from the robot's center of rotation in inches. Positive values are forward/right, negative values are backward/left.
          * @param orientation The orientation of the tracking wheel (LEFT, RIGHT, or BACK).
          */
-        TrackingWheel(int port, double wheelDiameter, double offset, WheelPosition orientation)
-        : encoder(new pros::Rotation(port)), wheelDiameter(wheelDiameter), offset(offset), orientation(orientation) {
-            previousTime = pros::millis();
-            currentTime = pros::millis();
-        }
+        TrackingWheel(int port, float wheelDiameter, float offset, WheelPosition orientation)
+        : encoder(new pros::Rotation(port)), wheelDiameter(wheelDiameter), offset(offset), orientation(orientation) {}
 
         /**
          * @brief Resets the tracking wheel's encoder to zero.
@@ -49,31 +44,31 @@ class TrackingWheel {
          * @brief Sets the last recorded position of the tracking wheel. Used for calculating distance traveled.
          * @param position The new last position in inches.
          */
-        void setLastPosition(double position) { lastPosition = position; }
+        void setLastPosition(float position) { lastPosition = position; }
 
         /**
          * @brief Get the last recorded position of the tracking wheel.
          * @return The last position in inches.
          */
-        double getLastPosition() { return lastPosition; }
+        float getLastPosition() { return lastPosition; }
 
         /**
          * @brief Get the current distance traveled by the tracking wheel since the last reset.
          * @return The distance in inches.
          */
-        double getDistance();
+        float getDistance();
 
         /**
          * @brief Get the current rotation of the tracking wheel.
          * @return The rotation in degrees.
          */
-        double getRotations();
+        float getRotations();
 
         /**
          * @brief Get the offset of the tracking wheel from the robot's center of rotation.
          * @return The offset in inches.
          */
-        double getOffset() { return offset; }
+        float getOffset() { return offset; }
 
         /**
          * @brief Get the orientation of the tracking wheel.
@@ -85,10 +80,10 @@ class TrackingWheel {
          * @brief Get the wheel diameter of the tracking wheel.
          * @return The wheel diameter in inches.
          */
-        double getWheelDiameter() { return wheelDiameter; }
+        float getWheelDiameter() { return wheelDiameter; }
 
-        void calculateVelocity();
+        void calculateVelocity(float dt);
 
-        double getWheelVelocity() { return velocity; }
+        float getWheelVelocity() { return velocity; }
 
 };

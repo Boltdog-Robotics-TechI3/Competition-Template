@@ -40,6 +40,6 @@ void DifferentialChassis::moveToPose(Pose targetPose) {
  * 
  * @param targetAngle The target angle to turn to (in degrees).
  */
-void DifferentialChassis::turnAngle(double targetAngle) {
+void DifferentialChassis::turnAngle(float targetAngle) {
     // TODO: Implement TurnAngle for DifferentialChassis
 }

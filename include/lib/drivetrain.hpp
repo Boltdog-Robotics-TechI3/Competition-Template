@@ -6,49 +6,49 @@
 
 class Drivetrain {
     protected: 
-        double wheelDiameter;
-        double wheelTrackWidth;
-        double gearRatio;
+        float wheelDiameter;
+        float wheelTrackWidth;
+        float gearRatio;
 
     public:
 
-        Drivetrain(double wheelDiameter, double wheelTrackWidth, double gearRatio)
+        Drivetrain(float wheelDiameter, float wheelTrackWidth, float gearRatio)
         : wheelDiameter(wheelDiameter), wheelTrackWidth(wheelTrackWidth), gearRatio(gearRatio) {}
 
          /**
          * @brief Get the wheel diameter.
          * @return The wheel diameter in inches.
          */
-        double getWheelDiameter() const { return wheelDiameter; }
+        float getWheelDiameter() const { return wheelDiameter; }
 
         /**
          * @brief Set the wheel diameter.
          * @param diameter The new wheel diameter in inches.
          */
-        void setWheelDiameter(double diameter) { wheelDiameter = diameter; }
+        void setWheelDiameter(float diameter) { wheelDiameter = diameter; }
 
         /**
          * @brief Get the wheel track width (distance between left and right wheels).
          * @return The wheel track width in inches.
          */
-        double getWheelTrackWidth() const { return wheelTrackWidth; }
+        float getWheelTrackWidth() const { return wheelTrackWidth; }
         
         /**
          * @brief Set the wheel track width (distance between left and right wheels).
          * @param width The new wheel track width in inches.
          */
-        void setWheelTrackWidth(double width) { wheelTrackWidth = width; }
+        void setWheelTrackWidth(float width) { wheelTrackWidth = width; }
 
         /**
          * @brief Get the gear ratio (output (wheel) speed / input (motor) speed).
          * @return The gear ratio.
          */
-        double getGearRatio() const { return gearRatio; }
+        float getGearRatio() const { return gearRatio; }
         /**
          * @brief Set the gear ratio (output (wheel) speed / input (motor) speed).
          * @param ratio The new gear ratio.
          */
-        void setGearRatio(double ratio) { gearRatio = ratio; }
+        void setGearRatio(float ratio) { gearRatio = ratio; }
 
         /**
          * Sets the brake mode of the drivetrain.

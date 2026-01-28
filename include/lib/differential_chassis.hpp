@@ -9,6 +9,9 @@
 
 class DifferentialChassis : public Chassis {
     public:
+        DifferentialChassis(DifferentialDrivetrain *drivetrain, OdomSensors *odometry, UKF_Odom *filter) 
+        : Chassis(drivetrain, odometry, filter) {}
+
         DifferentialChassis(DifferentialDrivetrain *drivetrain, OdomSensors *odometry) 
         : Chassis(drivetrain, odometry) {}
 
@@ -41,5 +44,5 @@ class DifferentialChassis : public Chassis {
          * 
          * @param targetAngle The target angle to turn to (in degrees).
          */
-        void turnAngle(double targetAngle) override;
+        void turnAngle(float targetAngle) override;
 };

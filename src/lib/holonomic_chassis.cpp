@@ -8,8 +8,8 @@
  * @param transSpeed The translational speed.
  * @param rotSpeed The rotational speed.
  */
-void HolonomicChassis::driveAngle(double angle, int transSpeed, int rotSpeed) {
-	double adjustedAngle = angle;
+void HolonomicChassis::driveAngle(float angle, int transSpeed, int rotSpeed) {
+	float adjustedAngle = angle;
 	int x = cos(adjustedAngle) * transSpeed;
 	int y = sin(adjustedAngle) * transSpeed;
 
@@ -26,12 +26,12 @@ void HolonomicChassis::driveAngle(double angle, int transSpeed, int rotSpeed) {
  * @param rightX The x-value of the right joystick.
  */
 void HolonomicChassis::fieldCentricDrive(int leftX, int leftY, int rightX) {
-    double y = (double)leftY;
-    double x = (double)leftX;
-    double r = scaleInput(rightX);
+    float y = (float)leftY;
+    float x = (float)leftX;
+    float r = scaleInput(rightX);
 
-    double targetAngle = atan2(y, x);
-    double speed = scaleInput(sqrt(x*x + y*y));
+    float targetAngle = atan2(y, x);
+    float speed = scaleInput(sqrt(x*x + y*y));
 
 	driveAngle(targetAngle + odometry->getRotationRadians(), speed, r);
 }
@@ -43,12 +43,12 @@ void HolonomicChassis::fieldCentricDrive(int leftX, int leftY, int rightX) {
  * @param rightX The x-value of the right joystick.
  */
 void HolonomicChassis::robotCentricDrive(int leftX, int leftY, int rightX) {
-    double y = (double)leftY;
-    double x = (double)leftX;
-    double r = scaleInput(rightX);
+    float y = (float)leftY;
+    float x = (float)leftX;
+    float r = scaleInput(rightX);
 
-    double targetAngle = atan2(y, x);
-    double speed = scaleInput(sqrt(x*x + y*y));
+    float targetAngle = atan2(y, x);
+    float speed = scaleInput(sqrt(x*x + y*y));
 
     driveAngle(targetAngle, speed, r);
 }
@@ -67,6 +67,6 @@ void HolonomicChassis::moveToPose(Pose targetPose) {
  * 
  * @param targetAngle The target angle to turn to (in degrees).
  */
-void HolonomicChassis::turnAngle(double targetAngle) {
+void HolonomicChassis::turnAngle(float targetAngle) {
     // TODO: Implement TurnAngle for HolonomicChassis
 }

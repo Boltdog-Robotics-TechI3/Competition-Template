@@ -1,40 +1,52 @@
 #include "lib/ukf_odom.hpp"
 
-UKF_Odom::UKF_Odom(OdomSensors *sensors, Pose *startingPose) {
+UKF_Odom::UKF_Odom(OdomSensors *sensors, const Pose& startingPose) {
     this->sensors = sensors;
 
     x.setZero();
 
-    x(0) = startingPose->getX();
-    x(1) = startingPose->getY();
-    x(5) = startingPose->getTheta();
+    x(0) = startingPose.getX();
+    x(1) = startingPose.getTheta();
+    x(5) = startingPose.getTheta();
+
+    P.setZero();
+    zp.setZero();
+    R.setZero();
+    S.setZero();
+    Q.setZero();
+    K.setZero();
+    y.setZero();
+    X.setZero();
+    Y.setZero();
+    Z.setZero();
+    wM.setZero();
+    wC.setZero();
 
     computeWeights();
 }
 
 UKF_Odom::UKF_Odom(OdomSensors *sensors) 
-    : UKF_Odom(sensors, new Pose()) {}
+    : UKF_Odom(sensors, Pose{}) {}
 
-void UKF_Odom::predict(controlInputVector C) {
+void UKF_Odom::predict(const controlInputVector& C) {
     X = computeSigmaPoints(x, P);
-
     for (int k = 0; k < numSigmaPoints; k++) {
         Y.col(k) = fx(X.col(k), C);
     }
 
-    x = unscentedTransformStateMean(Y, wM, [this](sigmaPointStateMatrix Y, sigmaPointWeights wM) { return stateMean(Y, wM); });
-    P = unscentedTransfromStateCovariance(x, Y, wC, Q, [this](stateVector s, stateVector x) { return stateResidual(s, x); });
+    x = unscentedTransformStateMean(Y, wM, [this](const sigmaPointStateMatrix& Y, const sigmaPointWeights& wM) { return stateMean(Y, wM); });
+    P = unscentedTransfromStateCovariance(x, Y, wC, Q, [this](const stateVector& s, const stateVector& x) { return stateResidual(s, x); });
 
     Y = computeSigmaPoints(x, P);
 }
 
-void UKF_Odom::update(measurementVector z) {
+void UKF_Odom::update(const measurementVector& z) {
     for (int k = 0; k < numSigmaPoints; k++) {
         Z.col(k) = hx(Y.col(k));
     }
 
-    zp = unscentedTransformMeasurementMean(Z, wM);
-    S = unscentedTransfromMeasurementCovariance(zp, Z, wC, R);
+    zp = unscentedTransformMeasurementMean(Z, wM, nullptr);
+    S = unscentedTransfromMeasurementCovariance(zp, Z, wC, R, nullptr);
 
     K = computeCrossVariance(x, zp, Y, Z, wC) * S.inverse();
     y = measurementResidual(z, zp);
@@ -43,7 +55,7 @@ void UKF_Odom::update(measurementVector z) {
     P = P - K * (S * K.transpose());
 }
 
-UKF_Odom::stateVector UKF_Odom::fx(stateVector sx, controlInputVector C) {
+UKF_Odom::stateVector UKF_Odom::fx(const stateVector& sx, const controlInputVector& C) {
     stateVector sy;
     sy.setZero();
 
@@ -57,7 +69,7 @@ UKF_Odom::stateVector UKF_Odom::fx(stateVector sx, controlInputVector C) {
     return sy;
 }
 
-UKF_Odom::measurementVector UKF_Odom::hx(stateVector sy) {
+UKF_Odom::measurementVector UKF_Odom::hx(const stateVector& sy) {
     measurementVector sz;
     sz.setZero();
 
@@ -66,7 +78,7 @@ UKF_Odom::measurementVector UKF_Odom::hx(stateVector sy) {
     return sz;
 }
 
-UKF_Odom::stateVector UKF_Odom::unscentedTransformStateMean(sigmaPointStateMatrix Y, sigmaPointWeights wM, std::function<stateVector(sigmaPointStateMatrix, sigmaPointWeights)> meanFunc) {
+UKF_Odom::stateVector UKF_Odom::unscentedTransformStateMean(const sigmaPointStateMatrix& Y, const sigmaPointWeights& wM, std::function<stateVector(const sigmaPointStateMatrix&, const sigmaPointWeights&)> meanFunc) {
     stateVector x;
     x.setZero();
 
@@ -79,7 +91,7 @@ UKF_Odom::stateVector UKF_Odom::unscentedTransformStateMean(sigmaPointStateMatri
     return x;
 }
 
-UKF_Odom::stateMatrix UKF_Odom::unscentedTransfromStateCovariance(stateVector x, sigmaPointStateMatrix Y, sigmaPointWeights wC, stateMatrix Q, std::function<stateVector(stateVector, stateVector)> residualFunc) {
+UKF_Odom::stateMatrix UKF_Odom::unscentedTransfromStateCovariance(const stateVector& x, const sigmaPointStateMatrix& Y, const sigmaPointWeights& wC, const stateMatrix& Q, std::function<stateVector(const stateVector&, const stateVector&)> residualFunc) {
     stateMatrix P;
     P.setZero();
 
@@ -100,7 +112,7 @@ UKF_Odom::stateMatrix UKF_Odom::unscentedTransfromStateCovariance(stateVector x,
     return P;
 }
 
-UKF_Odom::measurementVector UKF_Odom::unscentedTransformMeasurementMean(sigmaPointMeasurementMatrix Z, sigmaPointWeights wM, std::function<measurementVector(sigmaPointMeasurementMatrix, sigmaPointWeights)> meanFunc) {
+UKF_Odom::measurementVector UKF_Odom::unscentedTransformMeasurementMean(const sigmaPointMeasurementMatrix& Z, const sigmaPointWeights& wM, std::function<measurementVector(const sigmaPointMeasurementMatrix &, const sigmaPointWeights&)> meanFunc) {
     measurementVector zp;
     zp.setZero();
 
@@ -113,7 +125,7 @@ UKF_Odom::measurementVector UKF_Odom::unscentedTransformMeasurementMean(sigmaPoi
     return zp;
 }
 
-UKF_Odom::measurementMatrix UKF_Odom::unscentedTransfromMeasurementCovariance(measurementVector z, sigmaPointMeasurementMatrix Z, sigmaPointWeights wC, measurementMatrix R, std::function<measurementVector(measurementVector, measurementVector)> residualFunc) {
+UKF_Odom::measurementMatrix UKF_Odom::unscentedTransfromMeasurementCovariance(const measurementVector& z, const sigmaPointMeasurementMatrix& Z, const sigmaPointWeights& wC, const measurementMatrix& R, std::function<measurementVector(const measurementVector&, const measurementVector&)> residualFunc) {
     measurementMatrix S;
     S.setZero();
 
@@ -134,11 +146,11 @@ UKF_Odom::measurementMatrix UKF_Odom::unscentedTransfromMeasurementCovariance(me
     return S;
 }
 
-UKF_Odom::sigmaPointStateMatrix UKF_Odom::computeSigmaPoints(stateVector x, stateMatrix P) {
+UKF_Odom::sigmaPointStateMatrix UKF_Odom::computeSigmaPoints(const stateVector& x, const stateMatrix& P) {
     sigmaPointStateMatrix X;
     X.setZero();
 
-    Eigen::Matrix<float, numStates, numStates> U = ((numStates + lambda) * P).llt().matrixL();
+    stateMatrix U = ((numStates + lambda) * P).llt().matrixL();
 
     X.col(0) = x;
     for (int k = 0; k < numStates; k++) {
@@ -159,7 +171,7 @@ void UKF_Odom::computeWeights() {
     wC(0) = (lambda / (numStates + lambda)) + (1 - alpha*alpha + beta);    
 }
 
-UKF_Odom::stateVector UKF_Odom::stateMean(sigmaPointStateMatrix Y, sigmaPointWeights wM) {
+UKF_Odom::stateVector UKF_Odom::stateMean(const sigmaPointStateMatrix& Y, const sigmaPointWeights& wM) {
     stateVector x;
     x.setZero();
 
@@ -181,7 +193,7 @@ UKF_Odom::stateVector UKF_Odom::stateMean(sigmaPointStateMatrix Y, sigmaPointWei
     return x;
 }
 
-UKF_Odom::stateVector UKF_Odom::stateResidual(stateVector s, stateVector x) {
+UKF_Odom::stateVector UKF_Odom::stateResidual(const stateVector& s, const stateVector& x) {
     stateVector y;
     y.setZero();
 
@@ -191,19 +203,19 @@ UKF_Odom::stateVector UKF_Odom::stateResidual(stateVector s, stateVector x) {
     return y;
 }
 
-UKF_Odom::measurementVector UKF_Odom::measurementResidual(measurementVector s, measurementVector zp) {
+UKF_Odom::measurementVector UKF_Odom::measurementResidual(const measurementVector& s, const measurementVector& zp) {
     return s - zp;
 }
 
 
-UKF_Odom::stateVector UKF_Odom::stateAdd(stateVector a, stateVector b) {
+UKF_Odom::stateVector UKF_Odom::stateAdd(const stateVector& a, const stateVector& b) {
     stateVector sum = a + b;
     sum(5) = atan2(sin(sum(5)), cos(sum(5)));
     return sum;
 }
 
 
-UKF_Odom::kalmanGain UKF_Odom::computeCrossVariance(stateVector x, measurementVector zp, sigmaPointStateMatrix Y, sigmaPointMeasurementMatrix Z, sigmaPointWeights wC) {
+UKF_Odom::kalmanGain UKF_Odom::computeCrossVariance(const stateVector& x, const measurementVector& zp, const sigmaPointStateMatrix& Y, const sigmaPointMeasurementMatrix& Z, const sigmaPointWeights& wC) {
     kalmanGain Pxz;
     Pxz.setZero();
 

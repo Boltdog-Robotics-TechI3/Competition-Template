@@ -16,7 +16,7 @@
  * @param kI the integral gain
  * @param kD the derivative gain
  */
-PIDController::PIDController(double kP, double kI, double kD) {
+PIDController::PIDController(float kP, float kI, float kD) {
     this->kP = kP;
     this->kI = kI;
     this->kD = kD;
@@ -41,7 +41,7 @@ PIDController::PIDController() {
  * 
  * @param range the large error range in the same units as the measurement
  */
-void PIDController::setLargeErrorRange(double range) {
+void PIDController::setLargeErrorRange(float range) {
     largeErrorRange = range;
 }
 
@@ -53,7 +53,7 @@ void PIDController::setLargeErrorRange(double range) {
  * 
  * @param range the small error range in the same units as the measurement
  */
-void PIDController::setSmallErrorRange(double range) {
+void PIDController::setSmallErrorRange(float range) {
     smallErrorRange = range;
 }
 
@@ -65,7 +65,7 @@ void PIDController::setSmallErrorRange(double range) {
  * @param min the minimum output value
  * @param max the maximum output value
  */
-void PIDController::setOutputLimits(double min, double max) {
+void PIDController::setOutputLimits(float min, float max) {
     minOutput = min;
     maxOutput = max;
 }
@@ -77,7 +77,7 @@ void PIDController::setOutputLimits(double min, double max) {
  * @param kI the integral gain
  * @param kD the derivative gain
  */
-void PIDController::setGains(double kP, double kI, double kD) {
+void PIDController::setGains(float kP, float kI, float kD) {
     this->kP = kP;
     this->kI = kI;
     this->kD = kD;
@@ -88,7 +88,7 @@ void PIDController::setGains(double kP, double kI, double kD) {
  * 
  * @param kP the proportional gain
  */
-void PIDController::setP(double kP) {
+void PIDController::setP(float kP) {
     this->kP = kP;
 } 
 
@@ -97,7 +97,7 @@ void PIDController::setP(double kP) {
  * 
  * @param kP the integral gain
  */
-void PIDController::setI(double kI) {
+void PIDController::setI(float kI) {
     this->kI = kI;
 }
 
@@ -106,7 +106,7 @@ void PIDController::setI(double kI) {
  * 
  * @param kP the derivative gain
  */
-void PIDController::setD(double kD) {
+void PIDController::setD(float kD) {
     this->kD = kD;
 }
 
@@ -115,7 +115,7 @@ void PIDController::setD(double kD) {
  * 
  * @return the proportional gain
  */
-double PIDController::getP() {
+float PIDController::getP() {
     return kP;
 }
 
@@ -124,7 +124,7 @@ double PIDController::getP() {
  * 
  * @return the integral gain
  */   
-double PIDController::getI() {
+float PIDController::getI() {
     return kI;
 }
 
@@ -133,7 +133,7 @@ double PIDController::getI() {
  * 
  * @return the derivative gain
  */
-double PIDController::getD() {
+float PIDController::getD() {
     return kD;
 }
 
@@ -145,7 +145,7 @@ double PIDController::getD() {
  * 
  * @param IZone the IZone value
  */
-void PIDController::setIZone(double IZone) {
+void PIDController::setIZone(float IZone) {
     this->IZone = IZone;
 }
 
@@ -157,7 +157,7 @@ void PIDController::setIZone(double IZone) {
  * 
  * @return the IZone value
  */
-double PIDController::getIZone() {
+float PIDController::getIZone() {
     return IZone;
 }
 
@@ -166,7 +166,7 @@ double PIDController::getIZone() {
  * 
  * @return the current error
  */
-double PIDController::getError() {
+float PIDController::getError() {
     return error;
 }
 
@@ -175,7 +175,7 @@ double PIDController::getError() {
  * 
  * @return the current setpoint
  */
-double PIDController::getSetpoint() {
+float PIDController::getSetpoint() {
     return setpoint;
 }
 
@@ -198,7 +198,7 @@ void PIDController::reset() {
  * @param setpoint the desired setpoint of the system
  * @return the output of the PID controller
  */
-double PIDController::calculate(double measurement, double setpoint) {
+float PIDController::calculate(float measurement, float setpoint) {
     // Update the error
     error = setpoint - measurement;
 
@@ -206,7 +206,7 @@ double PIDController::calculate(double measurement, double setpoint) {
     int elapsedTime = currentTime - previousTime;
 
     // Calculate the output of the PID controller
-    double output = kP * error +                                  // P term
+    float output = kP * error +                                  // P term
                     (kI * accumulatedError * elapsedTime) +       // I term
                     ((error - previousError) * kD / elapsedTime); // D term
 

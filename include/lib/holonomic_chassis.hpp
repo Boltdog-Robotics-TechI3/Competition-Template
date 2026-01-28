@@ -9,6 +9,9 @@
 
 class HolonomicChassis : public Chassis {
     public:
+        HolonomicChassis(HolonomicDrivetrain *drivetrain, OdomSensors *odometry, UKF_Odom *filter) 
+        : Chassis(drivetrain, odometry, filter) {}
+
         HolonomicChassis(HolonomicDrivetrain *drivetrain, OdomSensors *odometry) 
         : Chassis(drivetrain, odometry) {}
 
@@ -21,7 +24,7 @@ class HolonomicChassis : public Chassis {
         * @param transSpeed The translational speed.
         * @param rotSpeed The rotational speed.
         */
-        void driveAngle(double angle, int transSpeed, int rotSpeed);
+        void driveAngle(float angle, int transSpeed, int rotSpeed);
 
         /**
          * @brief Move the robot in field-centric mode using joystick inputs.
@@ -51,5 +54,5 @@ class HolonomicChassis : public Chassis {
          * 
          * @param targetAngle The target angle to turn to (in degrees).
          */
-        void turnAngle(double targetAngle) override;
+        void turnAngle(float targetAngle) override;
 };

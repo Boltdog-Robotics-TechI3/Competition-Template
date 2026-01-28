@@ -12,25 +12,25 @@ class PIDController {
     private:
         // PID Controller Settings
         // These values' respective functions will be disabled if they are 0
-        double kP;
-        double kI;
-        double kD;
-        double smallErrorRange = 0;
-        double largeErrorRange = 0;
-        double minOutput = 0;
-        double maxOutput = 0;
-        double IZone = 0;
-        double maxSlewRate = 0;
+        float kP;
+        float kI;
+        float kD;
+        float smallErrorRange = 0;
+        float largeErrorRange = 0;
+        float minOutput = 0;
+        float maxOutput = 0;
+        float IZone = 0;
+        float maxSlewRate = 0;
 
         // Other variables
-        double setpoint;
-        double measurement;
+        float setpoint;
+        float measurement;
         int currentTime;
         int previousTime;
-        double error;
-        double previousError;
-        double accumulatedError;
-        double previousOutput;
+        float error;
+        float previousError;
+        float accumulatedError;
+        float previousOutput;
 
     public:
         /**
@@ -40,7 +40,7 @@ class PIDController {
          * @param kI the integral gain
          * @param kD the derivative gain
          */
-        PIDController(double kP, double kI, double kD);
+        PIDController(float kP, float kI, float kD);
 
         /**
          * Default constructor for the PID controller.
@@ -56,7 +56,7 @@ class PIDController {
          * 
          * @param range the large error range in the same units as the measurement
          */
-        void setLargeErrorRange(double range);
+        void setLargeErrorRange(float range);
 
         /**
          * Sets the small error range for the PID controller.
@@ -66,7 +66,7 @@ class PIDController {
          * 
          * @param range the small error range in the same units as the measurement
          */
-        void setSmallErrorRange(double range);
+        void setSmallErrorRange(float range);
 
         /**
          * Sets the output limits for the PID controller.
@@ -76,7 +76,7 @@ class PIDController {
          * @param min the minimum output value
          * @param max the maximum output value
          */
-        void setOutputLimits(double min, double max);
+        void setOutputLimits(float min, float max);
 
         /**
          * Sets the PID gains for the PID controller.
@@ -85,49 +85,49 @@ class PIDController {
          * @param kI the integral gain
          * @param kD the derivative gain
          */
-        void setGains(double kP, double kI, double kD);
+        void setGains(float kP, float kI, float kD);
 
         /**
          * Sets the proportional gain for the PID controller.
          * 
          * @param kP the proportional gain
          */
-        void setP(double kP);
+        void setP(float kP);
 
         /**
          * Sets the integral gain for the PID controller.
          * 
          * @param kP the integral gain
          */
-        void setI(double kI);
+        void setI(float kI);
 
         /**
          * Sets the derivative gain for the PID controller.
          * 
          * @param kP the derivative gain
          */
-        void setD(double kD);
+        void setD(float kD);
 
         /**
          * Gets the proportional gain for the PID controller.
          * 
          * @return the proportional gain
          */
-        double getP();
+        float getP();
 
         /**
          * Gets the integral gain for the PID controller.
          * 
          * @return the integral gain
          */
-        double getI();
+        float getI();
 
         /**
          * Gets the derivative gain for the PID controller.
          * 
          * @return the derivative gain
          */
-        double getD();
+        float getD();
 
         /**
          * Sets the IZone for the PID controller.
@@ -137,7 +137,7 @@ class PIDController {
          * 
          * @param IZone the IZone value
          */
-        void setIZone(double IZone);
+        void setIZone(float IZone);
 
         /**
          * Gets the IZone for the PID controller.
@@ -147,21 +147,21 @@ class PIDController {
          * 
          * @return the IZone value
          */
-        double getIZone();
+        float getIZone();
 
         /**
          * Gets the current error of the PID controller.
          * 
          * @return the current error
          */
-        double getError();
+        float getError();
 
         /**
          * Gets the current setpoint of the PID controller.
          * 
          * @return the current setpoint
          */
-        double getSetpoint();
+        float getSetpoint();
 
         /**
          * Resets the PID controller.
@@ -178,7 +178,7 @@ class PIDController {
          * @param setpoint the desired setpoint of the system
          * @return the output of the PID controller
          */
-        double calculate(double measurement, double setpoint);
+        float calculate(float measurement, float setpoint);
 
         /**
          * Determines if the error is within the small error range.
