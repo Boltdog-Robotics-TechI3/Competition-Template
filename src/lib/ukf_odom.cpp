@@ -6,14 +6,28 @@ UKF_Odom::UKF_Odom(OdomSensors *sensors, const Pose& startingPose) {
     x.setZero();
 
     x(0) = startingPose.getX();
-    x(1) = startingPose.getTheta();
+    x(1) = startingPose.getY();
     x(5) = startingPose.getTheta();
 
-    P.setZero();
+    P << 1e-6, 0, 0, 0, 0, 0,
+         0, 1e-6, 0, 0, 0, 0,
+         0, 0, 0.01, 0, 0, 0,
+         0, 0, 0, 0.01, 0, 0,
+         0, 0, 0, 0, 1e-4, 0,
+         0, 0, 0, 0, 0, 0.02;
+
+    Q << 1e-5, 0, 0, 0, 0, 0,
+         0, 1e-5, 0, 0, 0, 0,
+         0, 0, 0.05, 0, 0, 0,
+         0, 0, 0, 0.05, 0, 0,
+         0, 0, 0, 0, 1e-6, 0,
+         0, 0, 0, 0, 0, 0.02;
+
+    R << 0.01, 0,
+         0, 0.01;
+
     zp.setZero();
-    R.setZero();
     S.setZero();
-    Q.setZero();
     K.setZero();
     y.setZero();
     X.setZero();
@@ -61,8 +75,8 @@ UKF_Odom::stateVector UKF_Odom::fx(const stateVector& sx, const controlInputVect
 
     sy(0) = sx(0) + (cos(sx(5)) * sx(2) - sin(sx(5)) * sx(3)) * dt; 
     sy(1) = sx(1) + (sin(sx(5)) * sx(2) + cos(sx(5)) * sx(3)) * dt;
-    sy(2) = sx(2) + (C(0) - sx(2)) * kv * dt;
-    sy(3) = sx(3) + (C(1) - sx(3)) * kv * dt;
+    sy(2) = sx(2); // + (C(0) - sx(2)) * kv * dt;
+    sy(3) = sx(3); // + (C(1) - sx(3)) * kv * dt;
     sy(4) = sx(4);
     sy(5) = sx(5) + (sensors->getAngularVelocity() - sx(4)) * dt;
 
@@ -73,8 +87,8 @@ UKF_Odom::measurementVector UKF_Odom::hx(const stateVector& sy) {
     measurementVector sz;
     sz.setZero();
 
-    sz(0) = sy(0);
-    sz(1) = sy(1);
+    sz(0) = sy(2);
+    sz(1) = sy(3);
     return sz;
 }
 

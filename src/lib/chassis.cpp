@@ -143,7 +143,7 @@ void Chassis::trackPosition() {
 
     float currentVertical = currentPose[0];
     // auto currentRight = currentPose[1];
-    float currentHorizontal = currentPose[2];
+    float currentHorizontal = currentPose[1];
 
     // Calculate changes since last reading
     float previousVertical = odometry->verticalWheel->getLastPosition();
@@ -155,9 +155,9 @@ void Chassis::trackPosition() {
     float horizontalChange = currentHorizontal - previousHorizontal;
 
     // Update previous positions
-    odometry->verticalWheel->setLastPosition(currentVertical);
+    // odometry->verticalWheel->setLastPosition(currentVertical);
     //odometry->rightWheel->setLastPosition(currentRight);
-    odometry->horizontalWheel->setLastPosition(currentHorizontal);
+    // odometry->horizontalWheel->setLastPosition(currentHorizontal);
 
     Pose formerPosition = getPose();
 
@@ -189,7 +189,7 @@ void Chassis::trackPosition() {
  * @brief Calculate the robot's current position using an Unscented Kalman Filter. Runs constantly in parallel with other tasks.
  */
 void Chassis::updateFilter() {
-    Eigen::Matrix<float, 2,1 > controlInput;
+    Eigen::Matrix<float, 2, 1> controlInput;
     controlInput.setZero();
     filter->predict(controlInput);
 
@@ -200,4 +200,4 @@ void Chassis::updateFilter() {
 
     Eigen::Matrix<float, 6, 1> estimate = filter->getState();
     setPose(estimate(0), estimate(1), estimate(5));
-}
+}                                      

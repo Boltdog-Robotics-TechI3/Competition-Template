@@ -108,7 +108,7 @@ void opcontrol() {
 
 		// std::cout << "Vel X: " << odometry.getBodyVelX() << std::endl;
 		// std::cout << "Vel Y: " << odometry.getBodyVelY() << std::endl;
-		controller.set_text(0, 0, chassis.getPose());.
+		controller.set_text(0, 0, chassis.getPose().to_string());
 		
 		// controller.print(0, 0, "body Vel: %.2f", odometry.getBodyVelY());
 		// controller.print(1, 0, "Vel: %.2f", verticalTrackingWheel.getWheelVelocity());
