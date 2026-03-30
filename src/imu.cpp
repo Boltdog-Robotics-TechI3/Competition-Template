@@ -1,6 +1,7 @@
 //imu class
 
 #include "main.h"
+#include <cmath>
 
 class Imu {
     private:
@@ -9,7 +10,7 @@ class Imu {
     public:
 
 	//constants
-	static const int num_test_vals = 5;
+	static const int num_test_vals = 7;
 	static const int num_std_dev = 2;
 
 	//not constants
@@ -40,7 +41,8 @@ class Imu {
     	std::sort(yaws, yaws + 5);
         
     	//take median
-    	float median_yaw = yaws[2];
+    	float median_yaw = yaws[int(std::ceil(num_test_vals / 2))];
+		
     	//master.print(1, 0, "Median yaw: %f\n", median_yaw);
     	return median_yaw;
 
@@ -102,6 +104,8 @@ class Imu {
 		//calculate mean and standard deviation
 		mean = get_mean(test_values);
 		std_dev = get_std_dev(test_values);
+
+
 	}
 
 };
