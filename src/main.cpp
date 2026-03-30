@@ -1,4 +1,5 @@
 #include "main.h"
+#include "imu.cpp"
 
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
@@ -56,4 +57,16 @@ void autonomous() {}
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
-void opcontrol() {}
+void opcontrol() {
+
+	Imu imu (5);
+
+	//Some testing stuff
+		CSV log("MedianFilterLog", { "time (ms)", "angle (deg)"});
+
+		for (int i = 0; i < 100; i++) {
+			float yaw = imu.medianFilter();
+			log.printData({std::to_string(pros::millis()), std::to_string(yaw)});
+		}
+
+}

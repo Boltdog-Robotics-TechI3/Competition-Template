@@ -2,6 +2,8 @@
 
 #include "main.h"
 #include <cmath>
+#include <fstream>
+#include "util/csv.hpp"
 
 class Imu {
     private:
@@ -10,7 +12,7 @@ class Imu {
     public:
 
 	//constants
-	static const int num_test_vals = 7;
+	static const int num_test_vals = 5;
 	static const int num_std_dev = 2;
 
 	//not constants
@@ -21,8 +23,6 @@ class Imu {
     Imu(int port) : imu(port) {
 		calibrate();
 	}
-
-	//
 
 	//other functions
     float medianFilter(){
@@ -105,7 +105,7 @@ class Imu {
 		mean = get_mean(test_values);
 		std_dev = get_std_dev(test_values);
 
-
 	}
 
 };
+
